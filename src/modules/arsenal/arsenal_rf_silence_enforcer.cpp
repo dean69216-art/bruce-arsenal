@@ -3,6 +3,7 @@
 #include "core/mykeyboard.h"
 #include <WiFi.h>
 #include <esp_wifi.h>
+#include "arsenal_background.h"
 #include <globals.h>
 
 static volatile bool rfSilenceRunning = false;
