@@ -3,6 +3,8 @@
 #include "core/mykeyboard.h"
 #include <WiFi.h>
 #include <globals.h>
+#include "core/sd_functions.h"
+#include <SD.h>
 
 static const char *COMMON_USERS[] = {"admin", "root", "user", "test", "guest", "support"};
 static const char *COMMON_PASSWORDS[] = {"admin", "password", "1234", "root", "guest", "test", "support", ""};

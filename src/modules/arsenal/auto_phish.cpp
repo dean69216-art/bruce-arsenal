@@ -8,6 +8,7 @@
 #include <DNSServer.h>
 #include <esp_wifi.h>
 #include <globals.h>
+#include <SD.h>
 
 static AsyncWebServer *phishServer = nullptr;
 static DNSServer *dnsServer = nullptr;

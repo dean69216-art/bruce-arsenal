@@ -4,6 +4,8 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <globals.h>
+#include "core/sd_functions.h"
+#include <SD.h>
 
 static bool dnsTunnelActive = false;
 static char tunnelData[256];

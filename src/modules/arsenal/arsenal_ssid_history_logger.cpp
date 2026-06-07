@@ -6,6 +6,8 @@
 #include <WiFi.h>
 #include <esp_wifi.h>
 #include <globals.h>
+#include "core/sd_functions.h"
+#include <SD.h>
 
 #define SSID_RING_SIZE 32
 
