@@ -1,10 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - OUI Lookup Database
-// Offline MAC vendor lookup from SD card
-// File format: each line is "AABBCC=Vendor Name"
-// Store as /arsenal/oui.txt on SD card
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -15,8 +8,7 @@
 
 static const char *OUI_FILE = "/arsenal/oui.txt";
 
-// Lookup a MAC prefix in the OUI database
-// mac should be at least 3 bytes (first 3 octets)
+
 String oui_lookup_vendor(uint8_t *mac) {
     if (!setupSdCard()) return "No SD";
 
@@ -34,9 +26,9 @@ String oui_lookup_vendor(uint8_t *mac) {
         line.trim();
         if (line.length() < 7) continue;
 
-        // Compare first 6 chars (the OUI prefix)
+
         if (line.substring(0, 6).equalsIgnoreCase(String(prefix))) {
-            // Format: AABBCC=Vendor Name
+
             int eqPos = line.indexOf('=');
             if (eqPos > 0) {
                 result = line.substring(eqPos + 1);
@@ -48,7 +40,7 @@ String oui_lookup_vendor(uint8_t *mac) {
     return result;
 }
 
-// Interactive OUI lookup menu
+
 void arsenal_oui_lookup(void) {
     ARSENAL_SAFE_RUN([]() {
         if (!setupSdCard()) {
@@ -85,7 +77,7 @@ void arsenal_oui_lookup(void) {
             return;
         }
 
-        // Scan nearby WiFi and show vendors
+
         drawMainBorderWithTitle("OUI Lookup");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
         tft.setTextSize(FP);

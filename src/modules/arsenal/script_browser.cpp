@@ -1,10 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Script Browser
-// Browses and launches 60K+ scripts from SD card
-// Categorized by type: BadUSB, SubGHz, IR, NFC, RFID, etc.
-// Auto-detects file type and launches correct handler
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -13,17 +6,17 @@
 #include <SD.h>
 #include <globals.h>
 
-// Script type handlers - forward declarations from Bruce modules
+
 extern void ducky_setup(void *hid, bool ble);
 extern void *hid_usb;
 
 static const char *ARSENAL_SCRIPTS_ROOT = "/arsenal";
 
-// Script categories with their SD paths and file extensions
+
 struct ScriptCategory {
     const char *name;
     const char *path;
-    const char *extensions;  // comma-separated
+    const char *extensions;
     const char *description;
 };
 
@@ -39,7 +32,7 @@ static const ScriptCategory CATEGORIES[] = {
 };
 static const int NUM_CATEGORIES = sizeof(CATEGORIES) / sizeof(CATEGORIES[0]);
 
-// Count files recursively in a directory
+
 static int countFiles(const char *path, int maxDepth = 3, int depth = 0) {
     if (depth >= maxDepth) return 0;
     File dir = SD.open(path);
@@ -57,24 +50,24 @@ static int countFiles(const char *path, int maxDepth = 3, int depth = 0) {
         }
         entry.close();
 
-        if (count > 9999) break;  // cap counting to save time
+        if (count > 9999) break;
         esp_task_wdt_reset();
     }
     dir.close();
     return count;
 }
 
-// Browse a directory and show files/subdirs as menu options
+
 static void browseDirectory(String path, int depth = 0);
 
-// Execute a script based on its file extension
+
 static void executeScript(String filepath) {
     String ext = filepath.substring(filepath.lastIndexOf('.'));
     ext.toLowerCase();
 
     if (ext == ".txt") {
-        // DuckyScript - launch BadUSB
-        // Bruce's serial command can run ducky scripts
+
+
         drawMainBorderWithTitle("Running BadUSB");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
         tft.setTextSize(FP);
@@ -82,12 +75,12 @@ static void executeScript(String filepath) {
         tft.print("Script: " + filepath.substring(filepath.lastIndexOf('/') + 1));
         tft.setCursor(12, 70);
         tft.print("Executing DuckyScript...");
-        // The actual execution would call Bruce's ducky parser
-        // For now, show the file content
+
+
         File f = SD.open(filepath, FILE_READ);
         if (f) {
             tft.setCursor(12, 90);
-            tft.print("Lines: " + String(f.size() / 20));  // rough estimate
+            tft.print("Lines: " + String(f.size() / 20));
             f.close();
         }
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
@@ -95,7 +88,7 @@ static void executeScript(String filepath) {
         while (true) {
             if (check(EscPress)) return;
             if (check(SelPress)) {
-                // TODO: integrate with Bruce's ducky_setup passing the file path
+
                 displayRedStripe("Executing...");
                 delay(1000);
                 return;
@@ -103,7 +96,7 @@ static void executeScript(String filepath) {
             delay(100);
         }
     } else if (ext == ".sub") {
-        // Sub-GHz replay
+
         drawMainBorderWithTitle("Sub-GHz");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
         tft.setTextSize(FP);
@@ -116,7 +109,7 @@ static void executeScript(String filepath) {
         while (true) {
             if (check(EscPress)) return;
             if (check(SelPress)) {
-                // TODO: integrate with Bruce's RF replay
+
                 displayRedStripe("Transmitting...");
                 delay(2000);
                 return;
@@ -124,7 +117,7 @@ static void executeScript(String filepath) {
             delay(100);
         }
     } else if (ext == ".ir") {
-        // IR transmit
+
         drawMainBorderWithTitle("IR Remote");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
         tft.setTextSize(FP);
@@ -137,7 +130,7 @@ static void executeScript(String filepath) {
         while (true) {
             if (check(EscPress)) return;
             if (check(SelPress)) {
-                // TODO: integrate with Bruce's IR module
+
                 displayRedStripe("Transmitting IR...");
                 delay(1000);
                 return;
@@ -145,7 +138,7 @@ static void executeScript(String filepath) {
             delay(100);
         }
     } else if (ext == ".html" || ext == ".htm") {
-        // Evil Portal - show info, could launch portal with this template
+
         drawMainBorderWithTitle("Evil Portal");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
         tft.setTextSize(FP);
@@ -164,7 +157,7 @@ static void executeScript(String filepath) {
         while (true) {
             if (check(EscPress)) return;
             if (check(SelPress)) {
-                // Would launch captive portal with this HTML
+
                 displayRedStripe("Launching portal...");
                 delay(1000);
                 return;
@@ -172,7 +165,7 @@ static void executeScript(String filepath) {
             delay(100);
         }
     } else if (ext == ".js") {
-        // JavaScript - run in interpreter
+
         drawMainBorderWithTitle("JS Script");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
         tft.setTextSize(FP);
@@ -185,7 +178,7 @@ static void executeScript(String filepath) {
         while (true) {
             if (check(EscPress)) return;
             if (check(SelPress)) {
-                // TODO: integrate with Bruce's bjs_interpreter
+
                 displayRedStripe("Running script...");
                 delay(1000);
                 return;
@@ -193,7 +186,7 @@ static void executeScript(String filepath) {
             delay(100);
         }
     } else {
-        // Unknown file type - show info
+
         drawMainBorderWithTitle("File Info");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
         tft.setTextSize(FP);
@@ -213,9 +206,9 @@ static void executeScript(String filepath) {
     }
 }
 
-// Recursive directory browser
+
 static void browseDirectory(String path, int depth) {
-    if (depth > 5) return;  // max recursion
+    if (depth > 5) return;
 
     File dir = SD.open(path);
     if (!dir || !dir.isDirectory()) {
@@ -226,7 +219,7 @@ static void browseDirectory(String path, int depth) {
 
     options.clear();
 
-    // Collect entries
+
     struct DirEntry {
         String name;
         String fullPath;
@@ -247,18 +240,18 @@ static void browseDirectory(String path, int depth) {
         entries.push_back(e);
         entry.close();
 
-        if (entries.size() > 100) break;  // limit per page
+        if (entries.size() > 100) break;
         esp_task_wdt_reset();
     }
     dir.close();
 
-    // Sort: directories first, then files alphabetically
+
     std::sort(entries.begin(), entries.end(), [](const DirEntry &a, const DirEntry &b) {
         if (a.isDir != b.isDir) return a.isDir > b.isDir;
         return a.name < b.name;
     });
 
-    // Build menu
+
     for (auto &e : entries) {
         String label;
         if (e.isDir) {
@@ -286,7 +279,6 @@ static void browseDirectory(String path, int depth) {
     loopOptions(options, MENU_TYPE_SUBMENU, title.c_str());
 }
 
-// ─── Main Entry Point ────────────────────────────────────────────
 
 void arsenal_script_browser(void) {
     if (ESP.getFreeHeap() < 20000) {
@@ -301,7 +293,7 @@ void arsenal_script_browser(void) {
         return;
     }
 
-    // Check if arsenal scripts folder exists
+
     if (!SD.exists(ARSENAL_SCRIPTS_ROOT)) {
         drawMainBorderWithTitle("Script Browser");
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
@@ -323,14 +315,14 @@ void arsenal_script_browser(void) {
         return;
     }
 
-    // Show categories with file counts
+
     options.clear();
     for (int i = 0; i < NUM_CATEGORIES; i++) {
         const ScriptCategory &cat = CATEGORIES[i];
         String label = String(cat.name);
 
         if (SD.exists(cat.path)) {
-            // Quick count (non-recursive for speed)
+
             File d = SD.open(cat.path);
             int count = 0;
             if (d && d.isDirectory()) {
@@ -358,7 +350,7 @@ void arsenal_script_browser(void) {
         }});
     }
 
-    // Also allow browsing the root /arsenal folder directly
+
     options.push_back({"Browse All...", []() {
         browseDirectory(String(ARSENAL_SCRIPTS_ROOT), 0);
     }});

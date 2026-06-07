@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-// Band identifiers for Jam All
+
 enum JamBand {
     JAM_WIFI_24 = 0,
     JAM_BLE,
@@ -15,16 +15,16 @@ enum JamBand {
 struct JamBandState {
     const char *name;
     bool enabled;
-    bool available;  // hardware present?
-    bool active;     // currently jamming?
-    uint8_t level;   // activity level 0-10 for visualization
+    bool available;
+    bool active;
+    uint8_t level;
 };
 
 struct JamAllState {
     JamBandState bands[JAM_BAND_COUNT];
     unsigned long startTime;
-    unsigned long timeout;      // auto-stop after this many ms (0 = no timeout)
-    int selectedBand;           // currently highlighted band in GUI
+    unsigned long timeout;
+    int selectedBand;
     bool running;
 };
 

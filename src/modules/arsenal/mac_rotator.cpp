@@ -1,8 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - MAC Address Rotator
-// Periodically randomizes the WiFi MAC address
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -12,14 +7,14 @@
 
 static bool macRotatorRunning = false;
 static unsigned long lastRotation = 0;
-static unsigned long rotationInterval = 30000; // 30 seconds default
+static unsigned long rotationInterval = 30000;
 static uint8_t currentMAC[6];
 static int rotationCount = 0;
 
 static void generateRandomMAC(uint8_t *mac) {
     for (int i = 0; i < 6; i++) mac[i] = random(256);
-    mac[0] |= 0x02;   // locally administered bit
-    mac[0] &= 0xFE;   // unicast bit
+    mac[0] |= 0x02;
+    mac[0] &= 0xFE;
 }
 
 static void applyRandomMAC() {
@@ -38,7 +33,7 @@ static String macToString(uint8_t *mac) {
 
 void arsenal_mac_rotator(void) {
     ARSENAL_SAFE_RUN([]() {
-        // Ensure WiFi is on
+
         if (WiFi.getMode() == WIFI_MODE_NULL) {
             WiFi.mode(WIFI_STA);
         }
@@ -82,18 +77,18 @@ void arsenal_mac_rotator(void) {
             tft.setTextColor(TFT_RED, bruceConfig.bgColor);
             tft.drawCentreString("Esc to stop | Sel to rotate now", tftWidth / 2, tftHeight - 20, 1);
 
-            // Check for rotation timer
+
             if (millis() - lastRotation >= rotationInterval) {
                 applyRandomMAC();
             }
 
-            // Handle input
+
             if (check(EscPress)) break;
             if (check(SelPress)) {
                 applyRandomMAC();
             }
 
-            // Adjust interval with up/down
+
             if (check(UpPress) || check(NextPress)) {
                 rotationInterval += 5000;
                 if (rotationInterval > 300000) rotationInterval = 300000;

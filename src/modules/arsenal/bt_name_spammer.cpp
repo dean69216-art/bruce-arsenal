@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Bluetooth Name Spammer
-// Floods BLE advertisements with random/funny device names
-// Nearby devices see hundreds of phantom Bluetooth devices
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -11,10 +5,10 @@
 #include <BLEDevice.h>
 #include <globals.h>
 
-// NimBLE random address function
+
 extern "C" int ble_hs_id_set_rnd(const uint8_t *rnd_addr);
 
-// Funny/meme device names
+
 static const char *SPAM_NAMES[] = {
     "FBI Surveillance Van #3",
     "NSA_PRISM_Node_7",
@@ -59,33 +53,33 @@ void arsenal_bt_name_spammer(void) {
         unsigned long startTime = millis();
 
         while (true) {
-            // Set device name and advertise
+
             BLEAdvertisementData advData;
             BLEAdvertisementData scanRespData;
 
             const char *name = SPAM_NAMES[nameIndex % NUM_NAMES];
             advData.setName(name);
-            advData.setFlags(0x06);  // General discoverable + BR/EDR not supported
+            advData.setFlags(0x06);
 
             pAdvertising->setAdvertisementData(advData);
             pAdvertising->setScanResponseData(scanRespData);
 
-            // Randomize address for each advertisement
+
             uint8_t addr[6];
             for (int i = 0; i < 6; i++) addr[i] = random(256);
-            addr[0] |= 0xC0;  // random static address type
+            addr[0] |= 0xC0;
             BLEDevice::getAdvertising()->stop();
-            // NimBLE random address
+
             ble_hs_id_set_rnd(addr);
 
             pAdvertising->start();
-            delay(50);  // Short burst
+            delay(50);
             pAdvertising->stop();
 
             totalSent++;
             nameIndex++;
 
-            // Draw UI every few packets
+
             if (totalSent % 5 == 0) {
                 drawMainBorderWithTitle("Name Spammer");
                 int y = 45;

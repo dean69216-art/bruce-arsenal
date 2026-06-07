@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Attack Scheduler
-// Schedule attacks to start/stop at specific times
-// "Run karma attack in 5 min for 2 min, then stop"
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -11,8 +5,8 @@
 
 struct ScheduledTask {
     String name;
-    unsigned long startAfterMs;   // start X ms from now
-    unsigned long durationMs;     // run for X ms (0 = indefinite)
+    unsigned long startAfterMs;
+    unsigned long durationMs;
     bool started;
     bool finished;
     void (*startFunc)(void);
@@ -22,7 +16,7 @@ static std::vector<ScheduledTask> scheduledTasks;
 static bool schedulerRunning = false;
 static unsigned long schedulerStartTime = 0;
 
-// Available features that can be scheduled
+
 struct SchedulableFeature {
     const char *name;
     void (*func)(void);
@@ -43,7 +37,7 @@ void arsenal_attack_scheduler(void) {
     ARSENAL_SAFE_RUN([]() {
         scheduledTasks.clear();
 
-        // Select feature
+
         options.clear();
         int selectedFeature = -1;
         for (int i = 0; i < NUM_FEATURES; i++) {
@@ -54,7 +48,7 @@ void arsenal_attack_scheduler(void) {
         loopOptions(options, MENU_TYPE_SUBMENU, "Schedule What?");
         if (selectedFeature < 0) return;
 
-        // Select delay (start after)
+
         options.clear();
         unsigned long delayMs = 0;
         options.push_back({"Now (0 delay)",    [&delayMs]() { delayMs = 0; }});
@@ -67,7 +61,7 @@ void arsenal_attack_scheduler(void) {
         options.push_back({"1 hour",           [&delayMs]() { delayMs = 3600000; }});
         loopOptions(options, MENU_TYPE_SUBMENU, "Start After?");
 
-        // Select duration
+
         options.clear();
         unsigned long durationMs = 0;
         options.push_back({"Until stopped",    [&durationMs]() { durationMs = 0; }});
@@ -78,7 +72,7 @@ void arsenal_attack_scheduler(void) {
         options.push_back({"10 minutes",       [&durationMs]() { durationMs = 600000; }});
         loopOptions(options, MENU_TYPE_SUBMENU, "Run For?");
 
-        // Add to schedule
+
         ScheduledTask task;
         task.name = String(FEATURES[selectedFeature].name);
         task.startAfterMs = delayMs;
@@ -88,7 +82,7 @@ void arsenal_attack_scheduler(void) {
         task.startFunc = FEATURES[selectedFeature].func;
         scheduledTasks.push_back(task);
 
-        // Show scheduled task and wait
+
         schedulerStartTime = millis();
         schedulerRunning = true;
 
@@ -131,13 +125,13 @@ void arsenal_attack_scheduler(void) {
             tft.setTextColor(TFT_RED, bruceConfig.bgColor);
             tft.drawCentreString("Esc to cancel all", tftWidth / 2, tftHeight - 18, 1);
 
-            // Process schedule
+
             for (auto &t : scheduledTasks) {
                 if (!t.started && elapsed >= t.startAfterMs) {
                     t.started = true;
-                    // Launch the attack
+
                     t.startFunc();
-                    t.finished = true;  // it ran (blocking call returned)
+                    t.finished = true;
                     schedulerRunning = false;
                     break;
                 }

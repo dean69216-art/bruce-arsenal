@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Auto Dim on Attack
-// Reduces screen brightness when any attack is active
-// Restores when attacks stop — harder to spot in the field
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "arsenal_background.h"
 #include "core/display.h"
@@ -11,10 +5,10 @@
 
 static bool autoDimEnabled = true;
 static int originalBrightness = -1;
-static const int DIM_BRIGHTNESS = 10;  // very dim (0-255 scale)
+static const int DIM_BRIGHTNESS = 10;
 static bool currentlyDimmed = false;
 
-// Call this when an attack starts
+
 void arsenal_dim_on_attack(void) {
     if (!autoDimEnabled) return;
     if (currentlyDimmed) return;
@@ -25,7 +19,7 @@ void arsenal_dim_on_attack(void) {
     currentlyDimmed = true;
 }
 
-// Call this when attacks stop
+
 void arsenal_dim_restore(void) {
     if (!currentlyDimmed) return;
     if (originalBrightness > 0) {
@@ -35,7 +29,7 @@ void arsenal_dim_restore(void) {
     currentlyDimmed = false;
 }
 
-// Toggle auto-dim feature
+
 void arsenal_auto_dim_toggle(void) {
     autoDimEnabled = !autoDimEnabled;
     if (!autoDimEnabled && currentlyDimmed) {

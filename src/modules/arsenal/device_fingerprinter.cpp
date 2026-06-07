@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Device Fingerprinter
-// Passive WiFi fingerprinting - identify device types
-// Analyzes probe requests, timing, OUI, and capabilities
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -11,60 +5,60 @@
 #include <esp_wifi.h>
 #include <globals.h>
 
-// Forward declaration for OUI lookup
+
 extern String oui_lookup_vendor(uint8_t *mac);
 
 struct FingerprintedDevice {
     uint8_t mac[6];
     String vendor;
-    String osGuess;      // "iOS", "Android", "Windows", "macOS", "Linux", "Unknown"
+    String osGuess;
     int probeCount;
     int rssi;
     std::vector<String> probedSSIDs;
     unsigned long firstSeen;
     unsigned long lastSeen;
-    bool randomizedMAC;  // Uses randomized MAC?
+    bool randomizedMAC;
 };
 
 static std::vector<FingerprintedDevice> fingerprints;
 static bool fpRunning = false;
 
-// Heuristics to guess OS from probe behavior
+
 static String guessOS(uint8_t *mac, const std::vector<String> &ssids, int probeInterval) {
-    // Check OUI first
+
     String vendor = oui_lookup_vendor(mac);
     vendor.toLowerCase();
 
-    // Apple devices
+
     if (vendor.indexOf("apple") >= 0) {
         return "iOS/macOS";
     }
 
-    // Samsung/Android
+
     if (vendor.indexOf("samsung") >= 0 || vendor.indexOf("xiaomi") >= 0 ||
         vendor.indexOf("huawei") >= 0 || vendor.indexOf("oppo") >= 0 ||
         vendor.indexOf("oneplus") >= 0 || vendor.indexOf("google") >= 0) {
         return "Android";
     }
 
-    // Intel/Microsoft likely Windows
+
     if (vendor.indexOf("intel") >= 0 || vendor.indexOf("microsoft") >= 0 ||
         vendor.indexOf("dell") >= 0 || vendor.indexOf("hp") >= 0 ||
         vendor.indexOf("lenovo") >= 0) {
         return "Windows";
     }
 
-    // Randomized MAC detection (locally administered bit set)
+
     if (mac[0] & 0x02) {
-        // Most modern phones use random MACs
-        // iOS sends fewer probes with random MACs
+
+
         if (ssids.size() <= 2) return "iOS (random)";
-        // Android tends to probe more SSIDs
+
         if (ssids.size() > 5) return "Android (random)";
         return "Phone (random)";
     }
 
-    // Linux/embedded
+
     if (vendor.indexOf("raspberry") >= 0 || vendor.indexOf("espressif") >= 0) {
         return "Linux/IoT";
     }
@@ -80,14 +74,14 @@ static void fpProbeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
     int len = pkt->rx_ctrl.sig_len;
     if (len < 24) return;
 
-    // Only probe requests
+
     if ((frame[0] & 0xFC) != 0x40) return;
 
     uint8_t srcMAC[6];
     memcpy(srcMAC, frame + 10, 6);
-    if (srcMAC[0] & 0x01) return;  // skip multicast
+    if (srcMAC[0] & 0x01) return;
 
-    // Extract SSID
+
     String ssid = "";
     int pos = 24;
     while (pos < len - 2) {
@@ -103,7 +97,7 @@ static void fpProbeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
         pos += 2 + tagLen;
     }
 
-    // Find or create device entry
+
     FingerprintedDevice *dev = nullptr;
     for (auto &d : fingerprints) {
         if (memcmp(d.mac, srcMAC, 6) == 0) {
@@ -141,7 +135,7 @@ static void fpProbeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
             }
         }
 
-        // Update OS guess
+
         dev->osGuess = guessOS(dev->mac, dev->probedSSIDs, 0);
     }
 }
@@ -166,11 +160,11 @@ void arsenal_device_fingerprinter(void) {
         unsigned long startTime = millis();
 
         while (true) {
-            // Channel hop
+
             esp_wifi_set_channel(ch, WIFI_SECOND_CHAN_NONE);
             ch = (ch % 14) + 1;
 
-            // Draw UI
+
             drawMainBorderWithTitle("Fingerprinter");
             int y = 36;
             int padX = 8;
@@ -183,13 +177,13 @@ void arsenal_device_fingerprinter(void) {
             tft.printf("Devices: %d | %lus | Ch:%d", (int)fingerprints.size(), elapsed, ch);
             y += 14;
 
-            // Show fingerprinted devices
+
             int maxShow = min((int)fingerprints.size(), 7);
             for (int i = 0; i < maxShow; i++) {
                 FingerprintedDevice &d = fingerprints[i];
                 y += 2;
 
-                // Color by OS type
+
                 uint16_t color = bruceConfig.priColor;
                 if (d.osGuess.indexOf("iOS") >= 0) color = TFT_WHITE;
                 else if (d.osGuess.indexOf("Android") >= 0) color = TFT_GREEN;
@@ -197,7 +191,7 @@ void arsenal_device_fingerprinter(void) {
 
                 tft.setTextColor(color, bruceConfig.bgColor);
 
-                // Format: MAC_SUFFIX OS RSSI #probes
+
                 char line[40];
                 snprintf(line, sizeof(line), "%s %s %ddB x%d",
                          macStr(d.mac).substring(9).c_str(),
@@ -213,7 +207,7 @@ void arsenal_device_fingerprinter(void) {
 
             if (check(EscPress)) break;
 
-            // Show details of a device
+
             if (check(SelPress) && !fingerprints.empty()) {
                 fpRunning = false;
                 esp_wifi_set_promiscuous(false);
@@ -241,7 +235,7 @@ void arsenal_device_fingerprinter(void) {
                 }
                 loopOptions(options, MENU_TYPE_SUBMENU, "Devices");
 
-                // Resume scanning
+
                 fpRunning = true;
                 esp_wifi_set_promiscuous(true);
                 esp_wifi_set_promiscuous_rx_cb(fpProbeCallback);

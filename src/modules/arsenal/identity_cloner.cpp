@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Identity Cloner
-// Copies a nearby device's MAC + probe pattern
-// Makes your ESP32 blend into legitimate traffic
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -14,7 +8,7 @@
 
 struct ScannedIdentity {
     uint8_t mac[6];
-    String ssidProbe;  // SSID this device is probing for
+    String ssidProbe;
     int rssi;
     String vendor;
 };
@@ -22,7 +16,7 @@ struct ScannedIdentity {
 static std::vector<ScannedIdentity> identities;
 static bool captureActive = false;
 
-// Promiscuous mode callback to capture probe requests
+
 static void probeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
     if (type != WIFI_PKT_MGMT || !captureActive) return;
 
@@ -32,25 +26,25 @@ static void probeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
 
     if (len < 24) return;
 
-    // Check if it's a probe request (subtype 0x04)
-    uint8_t frameType = frame[0];
-    if ((frameType & 0xFC) != 0x40) return;  // not probe request
 
-    // Extract source MAC
+    uint8_t frameType = frame[0];
+    if ((frameType & 0xFC) != 0x40) return;
+
+
     uint8_t srcMAC[6];
     memcpy(srcMAC, frame + 10, 6);
 
-    // Skip broadcast/multicast
+
     if (srcMAC[0] & 0x01) return;
 
-    // Extract SSID from tagged parameters
+
     String ssid = "";
-    int pos = 24;  // after fixed fields
+    int pos = 24;
     while (pos < len - 2) {
         uint8_t tagType = frame[pos];
         uint8_t tagLen = frame[pos + 1];
         if (pos + 2 + tagLen > len) break;
-        if (tagType == 0 && tagLen > 0) {  // SSID tag
+        if (tagType == 0 && tagLen > 0) {
             for (int i = 0; i < tagLen; i++) {
                 ssid += (char)frame[pos + 2 + i];
             }
@@ -58,7 +52,7 @@ static void probeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
         pos += 2 + tagLen;
     }
 
-    // Check if we already have this MAC
+
     for (auto &id : identities) {
         if (memcmp(id.mac, srcMAC, 6) == 0) {
             id.rssi = pkt->rx_ctrl.rssi;
@@ -69,13 +63,13 @@ static void probeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
         }
     }
 
-    // Add new identity (limit to 30)
+
     if (identities.size() < 30) {
         ScannedIdentity id;
         memcpy(id.mac, srcMAC, 6);
         id.ssidProbe = ssid;
         id.rssi = pkt->rx_ctrl.rssi;
-        id.vendor = "";  // OUI lookup would go here
+        id.vendor = "";
         identities.push_back(id);
     }
 }
@@ -91,7 +85,7 @@ void arsenal_identity_cloner(void) {
     ARSENAL_SAFE_RUN([]() {
         identities.clear();
 
-        // Phase 1: Capture identities
+
         WiFi.mode(WIFI_STA);
         esp_wifi_set_promiscuous(true);
         esp_wifi_set_promiscuous_rx_cb(probeCallback);
@@ -103,7 +97,7 @@ void arsenal_identity_cloner(void) {
         tft.drawCentreString("Capturing probe requests...", tftWidth / 2, tftHeight / 2 - 10, 1);
         tft.drawCentreString("Press Sel when ready", tftWidth / 2, tftHeight / 2 + 10, 1);
 
-        // Hop channels while capturing
+
         int ch = 1;
         while (true) {
             esp_wifi_set_channel(ch, WIFI_SECOND_CHAN_NONE);
@@ -116,7 +110,7 @@ void arsenal_identity_cloner(void) {
             }
             if (check(SelPress)) break;
 
-            // Update count on screen
+
             tft.fillRect(12, tftHeight - 35, tftWidth - 24, 14, bruceConfig.bgColor);
             tft.setCursor(12, tftHeight - 35);
             tft.printf("Captured: %d identities", (int)identities.size());
@@ -134,7 +128,7 @@ void arsenal_identity_cloner(void) {
             return;
         }
 
-        // Phase 2: Select identity to clone
+
         options.clear();
         for (size_t i = 0; i < identities.size(); i++) {
             ScannedIdentity &id = identities[i];
@@ -144,7 +138,7 @@ void arsenal_identity_cloner(void) {
                 label += " [" + id.ssidProbe.substring(0, 8) + "]";
             }
             options.push_back({label, [i]() {
-                // Clone this identity
+
                 ScannedIdentity &target = identities[i];
                 esp_wifi_set_mac(WIFI_IF_STA, target.mac);
 

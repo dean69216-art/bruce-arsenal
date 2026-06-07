@@ -1,8 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Karma Attack (wrapper)
-// Launches Bruce's existing karma attack from Arsenal menu
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"

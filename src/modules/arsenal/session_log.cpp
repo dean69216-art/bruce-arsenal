@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Session Logger
-// Logs all Arsenal activity with timestamps
-// Saves to /arsenal/logs/session_XXXXX.txt on SD
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -16,7 +10,7 @@ static bool loggingActive = false;
 static String currentLogPath = "";
 static int logEntries = 0;
 
-// Start a new session log
+
 void arsenal_log_start(void) {
     if (loggingActive) return;
     if (!setupSdCard()) return;
@@ -26,7 +20,7 @@ void arsenal_log_start(void) {
         SD.mkdir("/arsenal/logs");
     }
 
-    // Generate unique filename
+
     unsigned long ts = millis();
     currentLogPath = "/arsenal/logs/session_" + String(ts) + ".txt";
     logFile = SD.open(currentLogPath, FILE_WRITE);
@@ -41,7 +35,7 @@ void arsenal_log_start(void) {
     }
 }
 
-// Log an event
+
 void arsenal_log_event(const char *category, const char *message) {
     if (!loggingActive || !logFile) return;
 
@@ -51,12 +45,12 @@ void arsenal_log_event(const char *category, const char *message) {
     logEntries++;
 }
 
-// Log with a String message
+
 void arsenal_log_event(const char *category, String message) {
     arsenal_log_event(category, message.c_str());
 }
 
-// Stop logging
+
 void arsenal_log_stop(void) {
     if (!loggingActive) return;
     logFile.printf("\n═══ Session ended. %d events logged. ═══\n", logEntries);
@@ -64,12 +58,12 @@ void arsenal_log_stop(void) {
     loggingActive = false;
 }
 
-// View current session log on screen
+
 void arsenal_session_log_menu(void) {
     ARSENAL_SAFE_RUN([]() {
         options.clear();
 
-        // Start/stop logging
+
         if (loggingActive) {
             options.push_back({"Stop Logging", []() {
                 arsenal_log_stop();
@@ -90,7 +84,7 @@ void arsenal_session_log_menu(void) {
             }});
         }
 
-        // View past logs
+
         options.push_back({"View Past Logs", []() {
             if (!setupSdCard() || !SD.exists("/arsenal/logs")) {
                 displayRedStripe("No logs found");
@@ -108,7 +102,7 @@ void arsenal_session_log_menu(void) {
                     name = name.substring(name.lastIndexOf('/') + 1);
                     size_t size = entry.size();
                     logOpts.push_back({name + " (" + String(size) + "B)", [name]() {
-                        // Show first part of log
+
                         File f = SD.open("/arsenal/logs/" + name, FILE_READ);
                         if (f) {
                             drawMainBorderWithTitle("Log Viewer");
@@ -141,7 +135,7 @@ void arsenal_session_log_menu(void) {
             loopOptions(logOpts, MENU_TYPE_SUBMENU, "Session Logs");
         }});
 
-        // Clear all logs
+
         options.push_back({"Clear All Logs", []() {
             if (!setupSdCard()) return;
             File dir = SD.open("/arsenal/logs");

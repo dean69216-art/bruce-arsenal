@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Decoy Traffic Generator
-// Emits random WiFi frames on multiple channels
-// Masks your real activity in noise
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -11,31 +5,31 @@
 #include <esp_wifi.h>
 #include <globals.h>
 
-// Frame templates
+
 static uint8_t beacon_template[] = {
-    0x80, 0x00,                         // beacon frame
-    0x00, 0x00,                         // duration
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // destination (broadcast)
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // source (random)
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // bssid (random)
-    0x00, 0x00,                         // sequence
-    // Fixed parameters
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // timestamp
-    0x64, 0x00,                         // beacon interval
-    0x11, 0x00,                         // capability
-    // SSID tag (filled in)
-    0x00, 0x08,                         // tag: SSID, length 8
+    0x80, 0x00,
+    0x00, 0x00,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00,
+
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x64, 0x00,
+    0x11, 0x00,
+
+    0x00, 0x08,
     'D', 'e', 'c', 'o', 'y', '_', '0', '0'
 };
 
 static uint8_t probe_template[] = {
-    0x40, 0x00,                         // probe request
-    0x00, 0x00,                         // duration
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // destination
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // source (random)
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // bssid
-    0x00, 0x00,                         // sequence
-    0x00, 0x06,                         // SSID tag
+    0x40, 0x00,
+    0x00, 0x00,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x00, 0x00,
+    0x00, 0x06,
     'D', 'E', 'C', 'O', 'Y', '!'
 };
 
@@ -49,7 +43,7 @@ static void sendDecoyBeacon() {
     randomMAC(beacon_template + 10);
     memcpy(beacon_template + 16, beacon_template + 10, 6);
 
-    // Random SSID content
+
     for (int i = 0; i < 8; i++) {
         beacon_template[36 + i] = 'A' + random(26);
     }
@@ -73,14 +67,14 @@ void arsenal_decoy_traffic(void) {
         int framesSent = 0;
         unsigned long startTime = millis();
         int channel = 1;
-        int intensity = 5;  // frames per cycle
+        int intensity = 5;
 
         while (true) {
-            // Rotate channels
+
             esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
             channel = (channel % 14) + 1;
 
-            // Send mixed decoy frames
+
             for (int i = 0; i < intensity; i++) {
                 if (random(2) == 0) {
                     sendDecoyBeacon();
@@ -90,7 +84,7 @@ void arsenal_decoy_traffic(void) {
                 framesSent++;
             }
 
-            // Draw UI every 20 frames
+
             if (framesSent % 20 == 0) {
                 drawMainBorderWithTitle("Decoy Traffic");
                 int y = 45;

@@ -1,8 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Network Scanner
-// ARP sweep + TCP port scan on connected network
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -12,7 +7,7 @@
 #include <lwip/etharp.h>
 #include <lwip/netif.h>
 
-// Common ports to scan
+
 static const uint16_t SCAN_PORTS[] = {
     21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445, 993, 995, 3389, 8080, 8443
 };
@@ -27,7 +22,7 @@ struct HostInfo {
 
 static std::vector<HostInfo> discoveredHosts;
 
-// Forward declaration
+
 extern String oui_lookup_vendor(uint8_t *mac);
 
 static bool tcpPortOpen(IPAddress ip, uint16_t port, int timeoutMs = 200) {
@@ -47,7 +42,7 @@ static void arpScan(IPAddress gateway, IPAddress subnet) {
     uint32_t broadcast = network | ~mask;
     uint32_t totalHosts = broadcast - network - 1;
 
-    if (totalHosts > 254) totalHosts = 254;  // cap at /24
+    if (totalHosts > 254) totalHosts = 254;
 
     drawMainBorderWithTitle("Network Scan");
     tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
@@ -60,10 +55,10 @@ static void arpScan(IPAddress gateway, IPAddress subnet) {
             (network >> 0) & 0xFF,
             (network >> 8) & 0xFF,
             (network >> 16) & 0xFF,
-            ((network >> 0) & 0xFF) + i  // simplified — only works for /24
+            ((network >> 0) & 0xFF) + i
         );
 
-        // Actually construct correct IP from host number
+
         uint32_t hostIP = network + i;
         target = IPAddress(
             (hostIP) & 0xFF,
@@ -72,7 +67,7 @@ static void arpScan(IPAddress gateway, IPAddress subnet) {
             (hostIP >> 24) & 0xFF
         );
 
-        // Try to ping/connect to see if alive (quick TCP connect to common port)
+
         WiFiClient client;
         client.setTimeout(50);
         bool alive = client.connect(target, 80, 50);
@@ -83,7 +78,7 @@ static void arpScan(IPAddress gateway, IPAddress subnet) {
             HostInfo host;
             host.ip = target;
             memset(host.mac, 0, 6);
-            // Try to get MAC from ARP cache
+
             ip4_addr_t ipAddr;
             ipAddr.addr = (uint32_t)target;
             struct eth_addr *eth_ret = NULL;
@@ -97,7 +92,7 @@ static void arpScan(IPAddress gateway, IPAddress subnet) {
             discoveredHosts.push_back(host);
         }
 
-        // Progress display
+
         if (i % 10 == 0) {
             tft.fillRect(12, tftHeight - 30, tftWidth - 24, 16, bruceConfig.bgColor);
             tft.setCursor(12, tftHeight - 30);
@@ -122,7 +117,7 @@ static void portScanHost(HostInfo &host) {
 
 void arsenal_network_scanner(void) {
     ARSENAL_SAFE_RUN([]() {
-        // Check WiFi connection
+
         if (!wifiConnected) {
             if (!wifiConnectMenu()) return;
         }
@@ -130,7 +125,7 @@ void arsenal_network_scanner(void) {
         IPAddress gateway = WiFi.gatewayIP();
         IPAddress subnet = WiFi.subnetMask();
 
-        // Phase 1: ARP scan
+
         arpScan(gateway, subnet);
 
         if (discoveredHosts.empty()) {
@@ -139,13 +134,13 @@ void arsenal_network_scanner(void) {
             return;
         }
 
-        // Show results
+
         options.clear();
         for (size_t i = 0; i < discoveredHosts.size(); i++) {
             HostInfo &h = discoveredHosts[i];
             String label = h.ip.toString() + " [" + h.vendor.substring(0, 10) + "]";
             options.push_back({label, [&h, i]() {
-                // Port scan selected host
+
                 drawMainBorderWithTitle("Port Scan");
                 tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
                 tft.setTextSize(FP);
@@ -154,7 +149,7 @@ void arsenal_network_scanner(void) {
 
                 portScanHost(discoveredHosts[i]);
 
-                // Show open ports
+
                 std::vector<Option> portOpts;
                 if (discoveredHosts[i].openPorts.empty()) {
                     portOpts.push_back({"No open ports found", []() {}});

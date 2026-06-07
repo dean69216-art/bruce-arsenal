@@ -1,9 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal - Channel Hopper
-// Rapidly switches WiFi channels during attacks
-// Makes detection by spectrum analyzers harder
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -23,7 +17,7 @@ void arsenal_channel_hopper(void) {
 
         int hopIndex = 0;
         int hopCount = 0;
-        unsigned long hopInterval = 200;  // ms between hops
+        unsigned long hopInterval = 200;
         unsigned long lastHop = 0;
         unsigned long startTime = millis();
 
@@ -38,7 +32,7 @@ void arsenal_channel_hopper(void) {
                 lastHop = now;
             }
 
-            // Draw UI
+
             if (hopCount % 5 == 0) {
                 drawMainBorderWithTitle("Channel Hopper");
                 int y = 45;
@@ -66,7 +60,7 @@ void arsenal_channel_hopper(void) {
                 tft.printf("Elapsed: %lus", elapsed);
                 y += 20;
 
-                // Channel visualization
+
                 tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
                 tft.setCursor(padX, y);
                 tft.print("Ch: ");

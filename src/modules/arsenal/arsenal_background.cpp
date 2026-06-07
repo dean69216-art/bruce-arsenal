@@ -1,8 +1,3 @@
-// ═══════════════════════════════════════════════════════════
-// Arsenal Background Services
-// Persistent background tasks that run across ALL menus
-// ═══════════════════════════════════════════════════════════
-
 #include "arsenal_background.h"
 #include "arsenal.h"
 #include "core/display.h"
@@ -14,7 +9,7 @@
 #include <esp_wifi.h>
 #include <globals.h>
 
-// ─── Global State ────────────────────────────────────────────────
+
 volatile ArsenalOpsecLevel g_opsecLevel = OPSEC_CLEAR;
 volatile bool g_arsenalEvasionActive = false;
 volatile int g_arsenalDeauthsDetected = 0;
@@ -24,30 +19,30 @@ volatile bool g_arsenalLowPowerMode = false;
 static TaskHandle_t backgroundTask = nullptr;
 static bool backgroundRunning = false;
 
-// Evasion state
+
 static unsigned long lastMACRotate = 0;
 static unsigned long lastChannelHop = 0;
 static unsigned long lastDecoyFrame = 0;
 static uint8_t evasionChannel = 1;
 
-// Normal power intervals
-static const unsigned long MAC_ROTATE_NORMAL = 30000;      // 30s
-static const unsigned long CHANNEL_HOP_NORMAL = 200;       // 200ms
-static const unsigned long DECOY_NORMAL = 100;             // 100ms
-static const unsigned long TASK_DELAY_NORMAL = 50;         // 50ms loop
 
-// Low power intervals (5x slower)
-static const unsigned long MAC_ROTATE_LOW = 120000;        // 2 min
-static const unsigned long CHANNEL_HOP_LOW = 1000;         // 1s
-static const unsigned long DECOY_LOW = 500;                // 500ms
-static const unsigned long TASK_DELAY_LOW = 200;           // 200ms loop
+static const unsigned long MAC_ROTATE_NORMAL = 30000;
+static const unsigned long CHANNEL_HOP_NORMAL = 200;
+static const unsigned long DECOY_NORMAL = 100;
+static const unsigned long TASK_DELAY_NORMAL = 50;
+
+
+static const unsigned long MAC_ROTATE_LOW = 120000;
+static const unsigned long CHANNEL_HOP_LOW = 1000;
+static const unsigned long DECOY_LOW = 500;
+static const unsigned long TASK_DELAY_LOW = 200;
 
 static inline unsigned long getMACInterval() { return g_arsenalLowPowerMode ? MAC_ROTATE_LOW : MAC_ROTATE_NORMAL; }
 static inline unsigned long getHopInterval() { return g_arsenalLowPowerMode ? CHANNEL_HOP_LOW : CHANNEL_HOP_NORMAL; }
 static inline unsigned long getDecoyInterval() { return g_arsenalLowPowerMode ? DECOY_LOW : DECOY_NORMAL; }
 static inline unsigned long getTaskDelay() { return g_arsenalLowPowerMode ? TASK_DELAY_LOW : TASK_DELAY_NORMAL; }
 
-// Decoy frame
+
 static uint8_t decoy_beacon[] = {
     0x80, 0x00, 0x00, 0x00,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -59,7 +54,7 @@ static uint8_t decoy_beacon[] = {
     0x00, 0x06, 'N', 'O', 'I', 'S', 'E', '!'
 };
 
-// OPSEC passive monitor callback
+
 static void opsecPassiveCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
     if (type != WIFI_PKT_MGMT) return;
     const wifi_promiscuous_pkt_t *pkt = (wifi_promiscuous_pkt_t *)buf;
@@ -69,18 +64,18 @@ static void opsecPassiveCallback(void *buf, wifi_promiscuous_pkt_type_t type) {
 
     uint8_t subtype = (frame[0] >> 4) & 0x0F;
 
-    // Detect deauth/disassoc frames
+
     if (subtype == 0x0C || subtype == 0x0A) {
         g_arsenalDeauthsDetected = g_arsenalDeauthsDetected + 1;
     }
 }
 
-// Background task function
+
 static void arsenalBackgroundLoop(void *param) {
     while (backgroundRunning) {
         unsigned long now = millis();
 
-        // ─── OPSEC Level Calculation ──────────────────────────
+
         if (g_arsenalDeauthsDetected > 10) {
             g_opsecLevel = OPSEC_DANGER;
         } else if (g_arsenalDeauthsDetected > 3) {
@@ -89,16 +84,16 @@ static void arsenalBackgroundLoop(void *param) {
             g_opsecLevel = OPSEC_CLEAR;
         }
 
-        // Reset counter periodically (every 60s)
+
         static unsigned long lastReset = 0;
         if (now - lastReset > 60000) {
             g_arsenalDeauthsDetected = 0;
             lastReset = now;
         }
 
-        // ─── Always-On Evasion ────────────────────────────────
+
         if (g_arsenalEvasionActive) {
-            // MAC Rotation
+
             if (now - lastMACRotate > getMACInterval()) {
                 uint8_t mac[6];
                 for (int i = 0; i < 6; i++) mac[i] = random(256);
@@ -108,14 +103,14 @@ static void arsenalBackgroundLoop(void *param) {
                 lastMACRotate = now;
             }
 
-            // Channel Hopping
+
             if (now - lastChannelHop > getHopInterval()) {
                 evasionChannel = (evasionChannel % 14) + 1;
                 esp_wifi_set_channel(evasionChannel, WIFI_SECOND_CHAN_NONE);
                 lastChannelHop = now;
             }
 
-            // Decoy Traffic
+
             if (now - lastDecoyFrame > getDecoyInterval()) {
                 for (int i = 0; i < 6; i++) decoy_beacon[10 + i] = random(256);
                 decoy_beacon[10] |= 0x02;
@@ -131,22 +126,21 @@ static void arsenalBackgroundLoop(void *param) {
     vTaskDelete(NULL);
 }
 
-// ─── Public API ──────────────────────────────────────────────────
 
 void arsenal_background_start(void) {
     if (backgroundRunning) return;
     backgroundRunning = true;
 
-    // Start WiFi if not already on
+
     if (WiFi.getMode() == WIFI_MODE_NULL) {
         WiFi.mode(WIFI_STA);
     }
 
-    // Enable promiscuous for passive OPSEC monitoring
+
     esp_wifi_set_promiscuous(true);
     esp_wifi_set_promiscuous_rx_cb(opsecPassiveCallback);
 
-    // Launch background task on core 0 (main UI runs on core 1)
+
     xTaskCreatePinnedToCore(arsenalBackgroundLoop, "arsenal_bg", 4096, NULL, 1, &backgroundTask, 0);
 }
 
@@ -154,7 +148,7 @@ void arsenal_background_stop(void) {
     if (!backgroundRunning) return;
     backgroundRunning = false;
     g_arsenalEvasionActive = false;
-    vTaskDelay(pdMS_TO_TICKS(100));  // let task exit
+    vTaskDelay(pdMS_TO_TICKS(100));
     esp_wifi_set_promiscuous(false);
 }
 
@@ -162,10 +156,9 @@ bool arsenal_background_is_running(void) {
     return backgroundRunning;
 }
 
-// ─── OPSEC Dot (called from drawStatusBar) ───────────────────────
 
 void arsenal_draw_opsec_dot(void) {
-    // Draw a small filled circle in the top-right area of status bar
+
     int dotX = tftWidth - 16;
     int dotY = 14;
     int dotR = 4;
@@ -181,7 +174,6 @@ void arsenal_draw_opsec_dot(void) {
     tft.fillCircle(dotX, dotY, dotR, color);
 }
 
-// ─── Evasion Toggle ──────────────────────────────────────────────
 
 void arsenal_evasion_toggle(void) {
     if (!backgroundRunning) {
@@ -194,13 +186,6 @@ bool arsenal_evasion_is_active(void) {
     return g_arsenalEvasionActive;
 }
 
-// ─── Combo Presets ───────────────────────────────────────────────
-// Combos are stored on SD at /arsenal/combos/
-// Format: one feature name per line
-// Example file /arsenal/combos/stealth.txt:
-//   mac_rotator
-//   channel_hopper
-//   decoy_traffic
 
 struct ComboPreset {
     String name;
@@ -210,7 +195,7 @@ struct ComboPreset {
 static std::vector<ComboPreset> loadCombos() {
     std::vector<ComboPreset> combos;
 
-    // Built-in combos
+
     ComboPreset stealth;
     stealth.name = "Stealth Mode";
     stealth.features = {"mac_rotator", "channel_hopper", "decoy_traffic"};
@@ -226,7 +211,7 @@ static std::vector<ComboPreset> loadCombos() {
     recon.features = {"ble_tracker", "device_fingerprinter", "opsec_monitor"};
     combos.push_back(recon);
 
-    // Load user combos from SD
+
     if (setupSdCard() && SD.exists("/arsenal/combos")) {
         File dir = SD.open("/arsenal/combos");
         while (true) {
@@ -281,7 +266,7 @@ void arsenal_combo_menu(void) {
             tft.drawCentreString("Activating...", tftWidth / 2, tftHeight - 20, 1);
             delay(1500);
 
-            // Activate always-on evasion if stealth features included
+
             for (auto &f : combo.features) {
                 if (f == "mac_rotator" || f == "channel_hopper" || f == "decoy_traffic") {
                     if (!arsenal_background_is_running()) arsenal_background_start();
@@ -292,7 +277,7 @@ void arsenal_combo_menu(void) {
         }});
     }
 
-    // Option to create new combo
+
     options.push_back({"+ Create New Combo", []() {
         drawMainBorderWithTitle("New Combo");
         tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
@@ -314,7 +299,7 @@ void arsenal_combo_menu(void) {
         while (!check(EscPress) && !check(SelPress)) delay(100);
     }});
 
-    // Toggle always-on evasion
+
     String evasionLabel = g_arsenalEvasionActive ? "Evasion: ON (stop)" : "Evasion: OFF (start)";
     options.push_back({evasionLabel, []() {
         arsenal_evasion_toggle();
@@ -322,7 +307,7 @@ void arsenal_combo_menu(void) {
         delay(1000);
     }});
 
-    // Toggle low power mode
+
     String powerLabel = g_arsenalLowPowerMode ? "Power: LOW (switch to normal)" : "Power: NORMAL (switch to low)";
     options.push_back({powerLabel, []() {
         g_arsenalLowPowerMode = !g_arsenalLowPowerMode;
