@@ -46,8 +46,6 @@ static bool isEapolFrame(const uint8_t *frame, int len) {
     }
     return false;
 }
-    return false;
-}
 
 static void eapolPromiscCb(void *buf, wifi_promiscuous_pkt_type_t type) {
     if (!eapolCaptureActive) return;
