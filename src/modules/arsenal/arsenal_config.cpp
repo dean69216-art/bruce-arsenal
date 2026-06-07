@@ -230,58 +230,59 @@ static void showConfigEditor(int focus) {
 
 
 void arsenal_config_ap(void) {
-    ARSENAL_SAFE_RUN([]() { showConfigEditor(0); });
+    ARSENAL_HEAP_CHECK();
+    showConfigEditor(0);
 }
 
 void arsenal_config_dashboard(void) {
-    ARSENAL_SAFE_RUN([]() { showConfigEditor(2); });
+    ARSENAL_HEAP_CHECK();
+    showConfigEditor(2);
 }
 
 void arsenal_pin_lock(void) {
-    ARSENAL_SAFE_RUN([]() {
-        arsenal_config_load();
-        options.clear();
+    ARSENAL_HEAP_CHECK();
+    arsenal_config_load();
+    options.clear();
 
-        if (g_config.pinEnabled) {
-            options.push_back({"Change PIN", []() {
-                String p = keyboard("", 4, "New 4-digit PIN", true);
-                if (p.length() == 4) {
-                    arsenal_pin_set(p.c_str());
-                    displayRedStripe("PIN updated");
-                } else {
-                    displayRedStripe("PIN must be 4 digits");
-                }
-                delay(1000);
-            }});
-            options.push_back({"Disable PIN", []() {
-                arsenal_pin_clear();
-                displayRedStripe("PIN disabled");
-                delay(1000);
-            }});
-            options.push_back({"Verify PIN", []() {
-                if (arsenal_pin_check()) {
-                    displayRedStripe("PIN correct");
-                } else {
-                    displayRedStripe("Wrong PIN");
-                }
-                delay(1000);
-            }});
-        } else {
-            options.push_back({"Enable PIN", []() {
-                String p = keyboard("", 4, "Set 4-digit PIN", true);
-                if (p.length() == 4) {
-                    arsenal_pin_set(p.c_str());
-                    displayRedStripe("PIN enabled");
-                } else {
-                    displayRedStripe("PIN must be 4 digits");
-                }
-                delay(1000);
-            }});
-        }
+    if (g_config.pinEnabled) {
+        options.push_back({"Change PIN", []() {
+            String p = keyboard("", 4, "New 4-digit PIN", true);
+            if (p.length() == 4) {
+                arsenal_pin_set(p.c_str());
+                displayRedStripe("PIN updated");
+            } else {
+                displayRedStripe("PIN must be 4 digits");
+            }
+            delay(1000);
+        }});
+        options.push_back({"Disable PIN", []() {
+            arsenal_pin_clear();
+            displayRedStripe("PIN disabled");
+            delay(1000);
+        }});
+        options.push_back({"Verify PIN", []() {
+            if (arsenal_pin_check()) {
+                displayRedStripe("PIN correct");
+            } else {
+                displayRedStripe("Wrong PIN");
+            }
+            delay(1000);
+        }});
+    } else {
+        options.push_back({"Enable PIN", []() {
+            String p = keyboard("", 4, "Set 4-digit PIN", true);
+            if (p.length() == 4) {
+                arsenal_pin_set(p.c_str());
+                displayRedStripe("PIN enabled");
+            } else {
+                displayRedStripe("PIN must be 4 digits");
+            }
+            delay(1000);
+        }});
+    }
 
-        addOptionToMainMenu();
-        loopOptions(options, MENU_TYPE_SUBMENU, "PIN Lock");
-    });
+    addOptionToMainMenu();
+    loopOptions(options, MENU_TYPE_SUBMENU, "PIN Lock");
 }
 
 
@@ -365,60 +366,59 @@ static String formatDuration(unsigned long ms) {
 
 
 void arsenal_attack_stats(void) {
-    ARSENAL_SAFE_RUN([]() {
-        arsenal_stats_load();
+    ARSENAL_HEAP_CHECK();
+    arsenal_stats_load();
 
-        while (true) {
-            options.clear();
+    while (true) {
+        options.clear();
 
-            options.push_back({"Refresh", []() { arsenal_stats_load(); }});
-            options.push_back({"Save to SD", []() {
-                arsenal_stats_save();
-                displayRedStripe("Stats saved");
-                delay(1000);
-            }});
-            options.push_back({"Reset Stats", []() {
-                arsenal_stats_reset();
-                displayRedStripe("Stats reset");
-                delay(1000);
-            }});
-            options.push_back({"Back", []() {}});
+        options.push_back({"Refresh", []() { arsenal_stats_load(); }});
+        options.push_back({"Save to SD", []() {
+            arsenal_stats_save();
+            displayRedStripe("Stats saved");
+            delay(1000);
+        }});
+        options.push_back({"Reset Stats", []() {
+            arsenal_stats_reset();
+            displayRedStripe("Stats reset");
+            delay(1000);
+        }});
+        options.push_back({"Back", []() {}});
 
-            drawMainBorderWithTitle("Attack Stats");
-            tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
-            tft.setTextSize(FP);
+        drawMainBorderWithTitle("Attack Stats");
+        tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
+        tft.setTextSize(FP);
 
-            int y = 38;
-            int lineH = 16;
-            tft.setCursor(10, y); tft.printf("Creds:     %u", g_stats.credsCaptured); y += lineH;
-            tft.setCursor(10, y); tft.printf("Devices:   %u", g_stats.devicesSeen); y += lineH;
-            tft.setCursor(10, y); tft.printf("Attacks:   %u", g_stats.attacksRun); y += lineH;
-            tft.setCursor(10, y); tft.printf("Probes:    %u", g_stats.probesLogged); y += lineH;
-            tft.setCursor(10, y); tft.printf("Portals:   %u", g_stats.portalsServed); y += lineH;
-            tft.setCursor(10, y); tft.printf("Handshks:  %u", g_stats.wpaHandshakes); y += lineH;
-            tft.setCursor(10, y); tft.printf("Deauths:   %u", g_stats.deauthsDetected); y += lineH;
-            tft.setCursor(10, y); tft.printf("BLE devs:  %u", g_stats.bleDevicesSeen); y += lineH;
-            tft.setCursor(10, y); tft.printf("Pwds:      %u", g_stats.passwordsGenerated); y += lineH;
-            tft.setCursor(10, y); tft.printf("Combos:    %u", g_stats.combosExecuted); y += lineH;
+        int y = 38;
+        int lineH = 16;
+        tft.setCursor(10, y); tft.printf("Creds:     %u", g_stats.credsCaptured); y += lineH;
+        tft.setCursor(10, y); tft.printf("Devices:   %u", g_stats.devicesSeen); y += lineH;
+        tft.setCursor(10, y); tft.printf("Attacks:   %u", g_stats.attacksRun); y += lineH;
+        tft.setCursor(10, y); tft.printf("Probes:    %u", g_stats.probesLogged); y += lineH;
+        tft.setCursor(10, y); tft.printf("Portals:   %u", g_stats.portalsServed); y += lineH;
+        tft.setCursor(10, y); tft.printf("Handshks:  %u", g_stats.wpaHandshakes); y += lineH;
+        tft.setCursor(10, y); tft.printf("Deauths:   %u", g_stats.deauthsDetected); y += lineH;
+        tft.setCursor(10, y); tft.printf("BLE devs:  %u", g_stats.bleDevicesSeen); y += lineH;
+        tft.setCursor(10, y); tft.printf("Pwds:      %u", g_stats.passwordsGenerated); y += lineH;
+        tft.setCursor(10, y); tft.printf("Combos:    %u", g_stats.combosExecuted); y += lineH;
 
-            tft.setTextColor(TFT_GREEN, bruceConfig.bgColor);
-            tft.setCursor(10, tftHeight - 22);
-            tft.printf("Up: %s", formatDuration(millis()).c_str());
+        tft.setTextColor(TFT_GREEN, bruceConfig.bgColor);
+        tft.setCursor(10, tftHeight - 22);
+        tft.printf("Up: %s", formatDuration(millis()).c_str());
 
-            tft.setTextColor(TFT_RED, bruceConfig.bgColor);
-            tft.drawCentreString("Sel=menu  Esc=exit", tftWidth / 2, tftHeight - 10, 1);
+        tft.setTextColor(TFT_RED, bruceConfig.bgColor);
+        tft.drawCentreString("Sel=menu  Esc=exit", tftWidth / 2, tftHeight - 10, 1);
 
-            if (check(SelPress)) {
-                while (check(SelPress)) delay(10);
-                addOptionToMainMenu();
-                loopOptions(options, MENU_TYPE_SUBMENU, "Stats Menu");
-                arsenal_stats_save();
-            } else if (check(EscPress)) {
-                while (check(EscPress)) delay(10);
-                arsenal_stats_save();
-                return;
-            }
-            delay(50);
+        if (check(SelPress)) {
+            while (check(SelPress)) delay(10);
+            addOptionToMainMenu();
+            loopOptions(options, MENU_TYPE_SUBMENU, "Stats Menu");
+            arsenal_stats_save();
+        } else if (check(EscPress)) {
+            while (check(EscPress)) delay(10);
+            arsenal_stats_save();
+            return;
         }
-    });
+        delay(50);
+    }
 }

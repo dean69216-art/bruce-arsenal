@@ -17,6 +17,16 @@
         func();                                                   \
     } while (0)
 
+#define ARSENAL_HEAP_CHECK()                                      \
+    do {                                                          \
+        if (ESP.getFreeHeap() < 20000) {                          \
+            Serial.println("[Arsenal] Low memory, aborting.");     \
+            displayRedStripe("Low memory!", TFT_WHITE, TFT_RED);  \
+            delay(1500);                                          \
+            return;                                               \
+        }                                                         \
+    } while (0)
+
 
 void arsenal_network_scanner(void);
 void arsenal_dhcp_starvation(void);

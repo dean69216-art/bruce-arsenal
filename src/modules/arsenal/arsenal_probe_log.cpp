@@ -99,75 +99,74 @@ static void probePromiscCb(void *buf, wifi_promiscuous_pkt_type_t type) {
 
 
 void arsenal_wifi_probe_log(void) {
-    ARSENAL_SAFE_RUN([]() {
-        if (!setupSdCard()) {
-            displayRedStripe("SD card required");
-            delay(1500);
-            return;
-        }
-        if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
+    ARSENAL_HEAP_CHECK();
+    if (!setupSdCard()) {
+        displayRedStripe("SD card required");
+        delay(1500);
+        return;
+    }
+    if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
 
-        memset(probeRing, 0, sizeof(probeRing));
-        probeIdx = 0;
-        probeLogFile = SD.open(PROBE_LOG_PATH, FILE_APPEND);
-        probeLogActive = (bool)probeLogFile;
-        probePromiscWasOn = false;
+    memset(probeRing, 0, sizeof(probeRing));
+    probeIdx = 0;
+    probeLogFile = SD.open(PROBE_LOG_PATH, FILE_APPEND);
+    probeLogActive = (bool)probeLogFile;
+    probePromiscWasOn = false;
 
-        if (WiFi.getMode() == WIFI_MODE_NULL) WiFi.mode(WIFI_STA);
+    if (WiFi.getMode() == WIFI_MODE_NULL) WiFi.mode(WIFI_STA);
 
-        probeBgWasRunning = arsenal_background_is_running();
-        if (probeBgWasRunning) arsenal_background_stop();
-        esp_wifi_set_promiscuous(true);
-        esp_wifi_set_promiscuous_rx_cb(probePromiscCb);
-        if (probeLogFile) {
-            probeLogFile.printf("\n# session start %lu\n", millis());
-            probeLogFile.flush();
-        }
+    probeBgWasRunning = arsenal_background_is_running();
+    if (probeBgWasRunning) arsenal_background_stop();
+    esp_wifi_set_promiscuous(true);
+    esp_wifi_set_promiscuous_rx_cb(probePromiscCb);
+    if (probeLogFile) {
+        probeLogFile.printf("\n# session start %lu\n", millis());
+        probeLogFile.flush();
+    }
 
-        bool running = true;
-        while (running) {
-            drawMainBorderWithTitle("Probe Log");
-            tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
-            tft.setTextSize(FP);
-            tft.setCursor(8, 38);
-            tft.printf("Logging: %s", probeLogActive ? "ON" : "OFF");
-            tft.setCursor(8, 52);
-            tft.printf("Unique: %d", PROBE_RING_SIZE);
+    bool running = true;
+    while (running) {
+        drawMainBorderWithTitle("Probe Log");
+        tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);
+        tft.setTextSize(FP);
+        tft.setCursor(8, 38);
+        tft.printf("Logging: %s", probeLogActive ? "ON" : "OFF");
+        tft.setCursor(8, 52);
+        tft.printf("Unique: %d", PROBE_RING_SIZE);
 
-            int y = 70;
-            int shown = 0;
-            for (int off = 0; off < PROBE_RING_SIZE && shown < 8; off++) {
-                int i = (probeIdx - 1 - off + PROBE_RING_SIZE) % PROBE_RING_SIZE;
-                if (!probeRing[i].used) continue;
-                tft.setCursor(8, y);
-                tft.printf("%02X:%02X..%s %d",
-                    probeRing[i].mac[0], probeRing[i].mac[1],
-                    probeRing[i].ssid, (int)probeRing[i].rssi);
-                y += 12;
-                shown++;
-            }
-
-            tft.setTextColor(TFT_RED, bruceConfig.bgColor);
-            tft.drawCentreString("Esc=stop  Sel=clear", tftWidth / 2, tftHeight - 10, 1);
-
-            if (check(EscPress)) {
-                while (check(EscPress)) delay(10);
-                running = false;
-            } else if (check(SelPress)) {
-                while (check(SelPress)) delay(10);
-                memset(probeRing, 0, sizeof(probeRing));
-                probeIdx = 0;
-            }
-            delay(60);
+        int y = 70;
+        int shown = 0;
+        for (int off = 0; off < PROBE_RING_SIZE && shown < 8; off++) {
+            int i = (probeIdx - 1 - off + PROBE_RING_SIZE) % PROBE_RING_SIZE;
+            if (!probeRing[i].used) continue;
+            tft.setCursor(8, y);
+            tft.printf("%02X:%02X..%s %d",
+                probeRing[i].mac[0], probeRing[i].mac[1],
+                probeRing[i].ssid, (int)probeRing[i].rssi);
+            y += 12;
+            shown++;
         }
 
-        esp_wifi_set_promiscuous(false);
-        if (probeLogFile) {
-            probeLogFile.printf("# session end %lu\n", millis());
-            probeLogFile.close();
-        }
-        probeLogActive = false;
+        tft.setTextColor(TFT_RED, bruceConfig.bgColor);
+        tft.drawCentreString("Esc=stop  Sel=clear", tftWidth / 2, tftHeight - 10, 1);
 
-        if (probeBgWasRunning) arsenal_background_start();
-    });
+        if (check(EscPress)) {
+            while (check(EscPress)) delay(10);
+            running = false;
+        } else if (check(SelPress)) {
+            while (check(SelPress)) delay(10);
+            memset(probeRing, 0, sizeof(probeRing));
+            probeIdx = 0;
+        }
+        delay(60);
+    }
+
+    esp_wifi_set_promiscuous(false);
+    if (probeLogFile) {
+        probeLogFile.printf("# session end %lu\n", millis());
+        probeLogFile.close();
+    }
+    probeLogActive = false;
+
+    if (probeBgWasRunning) arsenal_background_start();
 }

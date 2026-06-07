@@ -17,6 +17,8 @@ static bool dashboardActive = false;
 static char AP_SSID[33] = "ArsenalNet";
 static char AP_PASS[64] = "arsenal32";
 static String uploadPath = "/arsenal";
+static AsyncAuthenticationMiddleware arsenalAuth;
+static bool arsenalAuthAdded = false;
 
 
 static const char ARSENAL_HTML[] PROGMEM = R"rawliteral(
@@ -578,8 +580,14 @@ void arsenal_dashboard_start(void) {
     }
 
     arsenalServer = new AsyncWebServer(80);
-    if (strlen(arsenal_config().dashUser) > 0 && strlen(arsenal_config().dashPass) > 0) {
-        arsenalServer->setAuthentication(arsenal_config().dashUser, arsenal_config().dashPass);
+    if (!arsenalAuthAdded &&
+        strlen(arsenal_config().dashUser) > 0 &&
+        strlen(arsenal_config().dashPass) > 0) {
+        arsenalAuth.setAuthType(AsyncAuthType::AUTH_BASIC);
+        arsenalAuth.setUsername(arsenal_config().dashUser);
+        arsenalAuth.setPassword(arsenal_config().dashPass);
+        arsenalServer->addMiddleware(&arsenalAuth);
+        arsenalAuthAdded = true;
     }
     setupArsenalRoutes();
     arsenalServer->begin();
@@ -595,6 +603,7 @@ void arsenal_dashboard_stop(void) {
     arsenalServer = nullptr;
     WiFi.softAPdisconnect(true);
     dashboardActive = false;
+    arsenalAuthAdded = false;
 }
 
 bool arsenal_dashboard_is_active(void) {
