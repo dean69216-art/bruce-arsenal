@@ -41,7 +41,7 @@ static bool isAudioDevice(NimBLEAdvertisedDevice &dev) {
 }
 
 class AudioScanCallbacks : public NimBLEScanCallbacks {
-    void onResult(NimBLEAdvertisedDevice *advertisedDevice) override {
+    void onResult(NimBLEAdvertisedDevice *advertisedDevice) {
         if (isAudioDevice(*advertisedDevice)) {
             String addr = advertisedDevice->getAddress().toString().c_str();
 
@@ -81,13 +81,7 @@ static void jamAudioTarget(String targetAddr) {
             advData.setFlags(0x06);
 
 
-            uint8_t addr[6];
-            for (int i = 0; i < 6; i++) addr[i] = random(256);
-            addr[0] |= 0xC0;
             NimBLEDevice::setSecurityAuth(false, false, false);
-            NimBLEAddress addrObj;
-            addrObj = NimBLEAddress(addr, BLE_ADDR_RANDOM);
-            esp_ble_gap_set_rand_addr(addrObj.getNative());
 
             pAdvertising->setAdvertisementData(advData);
             pAdvertising->start();

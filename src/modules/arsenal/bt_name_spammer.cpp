@@ -61,16 +61,9 @@ void arsenal_bt_name_spammer(void) {
             pAdvertising->setAdvertisementData(advData);
             pAdvertising->setScanResponseData(scanRespData);
 
-
-            uint8_t addr[6];
-            for (int i = 0; i < 6; i++) addr[i] = random(256);
-            addr[0] |= 0xC0;
             NimBLEDevice::getAdvertising()->stop();
 
             NimBLEDevice::setSecurityAuth(false, false, false);
-            NimBLEAddress addrObj;
-            addrObj = NimBLEAddress(addr, BLE_ADDR_RANDOM);
-            esp_ble_gap_set_rand_addr(addrObj.getNative());
 
             pAdvertising->start();
             delay(50);

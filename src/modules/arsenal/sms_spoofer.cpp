@@ -131,13 +131,7 @@ void arsenal_sms_notification_spoofer(void) {
 
         while (true) {
 
-            uint8_t addr[6];
-            for (int i = 0; i < 6; i++) addr[i] = random(256);
-            addr[0] |= 0xC0;
             NimBLEDevice::setSecurityAuth(false, false, false);
-            NimBLEAddress addrObj;
-            addrObj = NimBLEAddress(addr, BLE_ADDR_RANDOM);
-            esp_ble_gap_set_rand_addr(addrObj.getNative());
 
 
             if (mode == 0 || (mode == 2 && notifsSent % 3 == 0)) {
