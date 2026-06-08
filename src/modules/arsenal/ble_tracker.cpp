@@ -61,7 +61,7 @@ static bool isTile(NimBLEAdvertisedDevice &dev) {
     return false;
 }
 
-static String identifyDevice(NimBLEAdvertisedDevice &dev) {
+static String identifyDevice(const NimBLEAdvertisedDevice &dev) {
     if (isAirTag(dev)) return "AirTag";
     if (isSmartTag(dev)) return "SmartTag";
     if (isTile(dev)) return "Tile";

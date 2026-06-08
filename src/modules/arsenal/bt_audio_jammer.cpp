@@ -15,7 +15,7 @@ struct AudioDevice {
 static std::vector<AudioDevice> audioDevices;
 
 
-static bool isAudioDevice(NimBLEAdvertisedDevice &dev) {
+static bool isAudioDevice(const NimBLEAdvertisedDevice &dev) {
 
     if (dev.haveServiceUUID()) {
 
