@@ -1,3 +1,4 @@
+#if !LITE_VERSION
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -48,8 +49,9 @@ void arsenal_bt_name_spammer(void) {
         delay(100);
         if (!NimBLEDevice::init("")) {
             displayError("BLE init failed", true);
-            return;
-        }
+return;
+}
+#endif
         NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
 
         NimBLEDevice::setSecurityAuth(false, false, false);
@@ -121,3 +123,4 @@ void arsenal_bt_name_spammer(void) {
         NimBLEDevice::deinit(true);
     });
 }
+#endif

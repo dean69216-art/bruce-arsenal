@@ -1,3 +1,4 @@
+#if !LITE_VERSION
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -40,6 +41,7 @@ static bool isAudioDevice(const NimBLEAdvertisedDevice &dev) {
     }
     return false;
 }
+#endif
 
 class AudioScanCallbacks : public NimBLEScanCallbacks {
     void onResult(const NimBLEAdvertisedDevice *advertisedDevice) {
@@ -185,3 +187,4 @@ void arsenal_bt_audio_jammer(void) {
         NimBLEDevice::deinit(true);
     });
 }
+#endif

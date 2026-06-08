@@ -70,11 +70,11 @@ void ArsenalMenu::wifiArsenalMenu() {
 
 void ArsenalMenu::bleArsenalMenu() {
     options = {
-        {"Notif Spoofer",      arsenal_sms_notification_spoofer },
 #if !LITE_VERSION
+        {"Notif Spoofer",      arsenal_sms_notification_spoofer },
         {"BT Rickroll",        arsenal_bt_audio_rickroll        },
-#endif
         {"Device Profiler",    arsenal_bt_device_profiler       },
+#endif
         {"Back",               [this]() { optionsMenu(); }      },
     };
     loopOptions(options, MENU_TYPE_SUBMENU, "BLE Arsenal");

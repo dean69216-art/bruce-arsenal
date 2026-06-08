@@ -45,11 +45,13 @@ void arsenal_cred_forward(void);
 #endif
 
 
+#if !LITE_VERSION
 void arsenal_ble_tracker(void);
 void arsenal_bt_name_spammer(void);
 void arsenal_airtag_spoofer(void);
 void arsenal_bt_audio_jammer(void);
 void arsenal_sms_notification_spoofer(void);
+#endif
 
 
 void arsenal_device_fingerprinter(void);
@@ -122,8 +124,8 @@ void arsenal_flipper_import(void);
 // BLE
 #if !LITE_VERSION
 void arsenal_bt_audio_rickroll(void);
-#endif
 void arsenal_bt_device_profiler(void);
+#endif
 
 // Phishing Portals
 void arsenal_phish_windows_update(void);

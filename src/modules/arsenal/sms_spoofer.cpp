@@ -1,3 +1,4 @@
+#if !LITE_VERSION
 #include "arsenal.h"
 #include "core/display.h"
 #include "core/mykeyboard.h"
@@ -130,8 +131,9 @@ void arsenal_sms_notification_spoofer(void) {
         delay(100);
         if (!NimBLEDevice::init("")) {
             displayError("BLE init failed", true);
-            return;
-        }
+return; 
+}
+#endif
         NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
 
         unsigned long startTime = millis();
@@ -207,3 +209,4 @@ void arsenal_sms_notification_spoofer(void) {
         NimBLEDevice::deinit(true);
     });
 }
+#endif
