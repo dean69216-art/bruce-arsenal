@@ -170,7 +170,7 @@ void arsenal_dns_tunnel(void) {
     dnsUDP.stop();
 
     if (tunnelIdx > 0 && setupSdCard()) {
-        if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+        if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
         File f = SD.open("/arsenal/dns_tunnel.txt", FILE_WRITE);
         if (f) {
             f.write(tunnelData, tunnelIdx);

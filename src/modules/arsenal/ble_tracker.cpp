@@ -55,7 +55,7 @@ static bool isSmartTag(NimBLEAdvertisedDevice &dev) {
 static bool isTile(NimBLEAdvertisedDevice &dev) {
     if (dev.haveServiceUUID()) {
 
-        return dev.isAdvertisingService(NimBLEUUID("0000feed-0000-1000-8000-00805f9b34fb");
+        return dev.isAdvertisingService(NimBLEUUID("0000feed-0000-1000-8000-00805f9b34fb"));
     }
     return false;
 }

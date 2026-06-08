@@ -111,7 +111,7 @@ void arsenal_ssid_history_logger(void) {
         if (check(SelPress)) {
             while (check(SelPress)) delay(10);
             if (setupSdCard()) {
-                if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+                if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
                 File f = SD.open("/arsenal/ssid_history.log", FILE_APPEND);
                 if (f) {
                     f.printf("\n# session %lu\n", millis());

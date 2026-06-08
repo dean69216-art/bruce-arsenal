@@ -12,8 +12,8 @@ static char nfcURL[128] = "https://github.com/quietdom";
 
 static void loadNfcConfig() {
     if (!setupSdCard()) return;
-    if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
-    if (SD.exists("/arsenal/nfc_card.txt") {
+    if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
+    if (SD.exists("/arsenal/nfc_card.txt")) {
         File f = SD.open("/arsenal/nfc_card.txt", FILE_READ);
         if (f) {
             String line = f.readStringUntil('\n');

@@ -120,15 +120,7 @@ void arsenal_bt_audio_rickroll(void) {
     int count = 0;
 
     while (!check(EscPress)) {
-        uint8_t addr[6];
-        for (int i = 0; i < 6; i++) addr[i] = random(256);
-        addr[0] |= 0xC0;
-        addr[0] &= 0xFE;
         NimBLEDevice::getAdvertising()->stop();
-        NimBLEDevice::setSecurityAuth(false, false, false);
-        NimBLEAddress addrObj;
-        addrObj = NimBLEAddress(addr, BLE_ADDR_RANDOM);
-        esp_ble_gap_set_rand_addr(addrObj.getNative());
 
         NimBLEAdvertisementData advData;
         std::string payload;

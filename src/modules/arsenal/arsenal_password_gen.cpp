@@ -81,7 +81,7 @@ void arsenal_password_generator(void) {
                 delay(1000);
                 return;
             }
-            if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+            if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
             File f = SD.open("/arsenal/passwords.txt", FILE_APPEND);
             if (!f) { displayRedStripe("Open failed"); delay(1000); return; }
             f.println(current);

@@ -18,11 +18,11 @@ static bool isAudioDevice(NimBLEAdvertisedDevice &dev) {
 
     if (dev.haveServiceUUID()) {
 
-        if (dev.isAdvertisingService(NimBLEUUID("0000110b-0000-1000-8000-00805f9b34fb")) return true;
+        if (dev.isAdvertisingService(NimBLEUUID("0000110b-0000-1000-8000-00805f9b34fb"))) return true;
 
-        if (dev.isAdvertisingService(NimBLEUUID("0000111e-0000-1000-8000-00805f9b34fb")) return true;
+        if (dev.isAdvertisingService(NimBLEUUID("0000111e-0000-1000-8000-00805f9b34fb"))) return true;
 
-        if (dev.isAdvertisingService(NimBLEUUID("0000110a-0000-1000-8000-00805f9b34fb")) return true;
+        if (dev.isAdvertisingService(NimBLEUUID("0000110a-0000-1000-8000-00805f9b34fb"))) return true;
     }
 
 

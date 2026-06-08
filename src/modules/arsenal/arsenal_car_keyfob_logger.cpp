@@ -126,7 +126,7 @@ done:
     deinitRfModule();
 
     if (fobCount > 0 && setupSdCard()) {
-        if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+        if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
         File f = SD.open("/arsenal/keyfobs.log", FILE_APPEND);
         if (f) {
             for (int i = 0; i < FOB_RING_SIZE; i++) {

@@ -32,7 +32,7 @@ class ProfilerCallbacks : public NimBLEScanCallbacks {
         d.manufacturerData = "";
 
         if (dev->haveManufacturerData()) {
-            String mfg = dev->getManufacturerData();
+            std::string mfg = dev->getManufacturerData();
             char hex[8];
             for (int i = 0; i < (int)mfg.length() && d.serviceCount < 16; i++) {
                 snprintf(hex, sizeof(hex), "%02X", (uint8_t)mfg[i]);
@@ -50,7 +50,7 @@ class ProfilerCallbacks : public NimBLEScanCallbacks {
             if (dev->isAdvertisingService(NimBLEUUID((uint16_t)0x110C))) d.services[d.serviceCount++] = "AVRCP";
             if (dev->isAdvertisingService(NimBLEUUID((uint16_t)0x111E))) d.services[d.serviceCount++] = "Handsfree";
             if (dev->isAdvertisingService(NimBLEUUID((uint16_t)0x1124))) d.services[d.serviceCount++] = "HID";
-            if (dev->isAdvertisingService(NimBLEUUID("0000feed-0000-1000-8000-00805f9b34fb")) d.services[d.serviceCount++] = "Tile";
+            if (dev->isAdvertisingService(NimBLEUUID("0000feed-0000-1000-8000-00805f9b34fb"))) d.services[d.serviceCount++] = "Tile";
         }
 
         if (d.serviceCount == 0 && d.manufacturerData.length() == 0) {

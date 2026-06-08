@@ -105,7 +105,7 @@ void arsenal_wifi_probe_log(void) {
         delay(1500);
         return;
     }
-    if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+    if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
 
     memset(probeRing, 0, sizeof(probeRing));
     probeIdx = 0;

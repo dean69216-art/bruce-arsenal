@@ -72,7 +72,7 @@ void arsenal_default_cred_scanner(void) {
 
     File logFile;
     if (setupSdCard()) {
-        if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+        if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
         logFile = SD.open("/arsenal/creds.txt", FILE_APPEND);
     }
 

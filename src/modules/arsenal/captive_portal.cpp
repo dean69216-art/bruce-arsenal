@@ -59,7 +59,7 @@ static void logCredential(String email, String password) {
     if (!setupSdCard()) return;
 
 
-    if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+    if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
 
     File f = SD.open(CREDS_FILE, FILE_APPEND);
     if (f) {
@@ -139,7 +139,7 @@ void arsenal_captive_portal_templates(void) {
                 File entry = dir.openNextFile();
                 if (!entry) break;
                 String name = entry.name();
-                if (name.endsWith(".html") || name.endsWith(".htm") {
+                if (name.endsWith(".html") || name.endsWith(".htm")) {
                     options.push_back({name, [name]() {
                         activeTemplate = name;
                     }});

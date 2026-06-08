@@ -189,7 +189,7 @@ void arsenal_wifi_bruteforce(void) {
 
 
         if (setupSdCard()) {
-            if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+            if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
             String wlPath = "/arsenal/wordlist_" + targetSSID + ".txt";
             File wl = SD.open(wlPath, FILE_WRITE);
             if (wl) {

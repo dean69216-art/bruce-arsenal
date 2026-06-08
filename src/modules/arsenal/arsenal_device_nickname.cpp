@@ -19,7 +19,7 @@ static int nickCount = 0;
 static void loadNicks() {
     nickCount = 0;
     if (!setupSdCard()) return;
-    if (!SD.exists("/arsenal/nicknames.txt") return;
+    if (!SD.exists("/arsenal/nicknames.txt")) return;
     File f = SD.open("/arsenal/nicknames.txt", FILE_READ);
     if (!f) return;
     while (f.available() && nickCount < MAX_NICKS) {
@@ -46,7 +46,7 @@ static void loadNicks() {
 
 static void saveNicks() {
     if (!setupSdCard()) return;
-    if (!SD.exists("/arsenal") SD.mkdir("/arsenal");
+    if (!SD.exists("/arsenal")) SD.mkdir("/arsenal");
     File f = SD.open("/arsenal/nicknames.txt", FILE_WRITE);
     if (!f) return;
     for (int i = 0; i < nickCount; i++) {
