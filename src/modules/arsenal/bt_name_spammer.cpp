@@ -49,9 +49,8 @@ void arsenal_bt_name_spammer(void) {
         delay(100);
         if (!NimBLEDevice::init("")) {
             displayError("BLE init failed", true);
-return;
-}
-#endif
+            return;
+        }
         NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
 
         NimBLEDevice::setSecurityAuth(false, false, false);

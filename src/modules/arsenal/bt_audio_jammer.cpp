@@ -41,7 +41,6 @@ static bool isAudioDevice(const NimBLEAdvertisedDevice &dev) {
     }
     return false;
 }
-#endif
 
 class AudioScanCallbacks : public NimBLEScanCallbacks {
     void onResult(const NimBLEAdvertisedDevice *advertisedDevice) {

@@ -23,9 +23,9 @@ static bool trackerAlert = false;
 static const int TRACKER_THRESHOLD = 5;
 
 
-static bool isAirTag(NimBLEAdvertisedDevice &dev) {
-    if (dev.haveManufacturerData()) {
-        std::string mfgData = dev.getManufacturerData();
+static bool isAirTag(const NimBLEAdvertisedDevice *dev) {
+    if (dev->haveManufacturerData()) {
+        std::string mfgData = dev->getManufacturerData();
 
         if (mfgData.length() >= 2) {
             if ((uint8_t)mfgData[0] == 0x4C && (uint8_t)mfgData[1] == 0x00) {
@@ -40,9 +40,9 @@ static bool isAirTag(NimBLEAdvertisedDevice &dev) {
 }
 
 
-static bool isSmartTag(NimBLEAdvertisedDevice &dev) {
-    if (dev.haveManufacturerData()) {
-        std::string mfgData = dev.getManufacturerData();
+static bool isSmartTag(const NimBLEAdvertisedDevice *dev) {
+    if (dev->haveManufacturerData()) {
+        std::string mfgData = dev->getManufacturerData();
 
         if (mfgData.length() >= 2) {
             if ((uint8_t)mfgData[0] == 0x75 && (uint8_t)mfgData[1] == 0x00) {
@@ -54,10 +54,10 @@ static bool isSmartTag(NimBLEAdvertisedDevice &dev) {
 }
 
 
-static bool isTile(NimBLEAdvertisedDevice &dev) {
-    if (dev.haveServiceUUID()) {
+static bool isTile(const NimBLEAdvertisedDevice *dev) {
+    if (dev->haveServiceUUID()) {
 
-        return dev.isAdvertisingService(NimBLEUUID("0000feed-0000-1000-8000-00805f9b34fb"));
+        return dev->isAdvertisingService(NimBLEUUID("0000feed-0000-1000-8000-00805f9b34fb"));
     }
     return false;
 }
@@ -197,3 +197,4 @@ void arsenal_ble_tracker(void) {
         trackedDevices.clear();
     });
 }
+#endif
