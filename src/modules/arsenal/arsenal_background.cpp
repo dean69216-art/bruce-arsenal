@@ -159,7 +159,7 @@ bool arsenal_background_is_running(void) {
 
 void arsenal_draw_opsec_dot(void) {
 
-    int dotX = tftWidth - 16;
+    int dotX = 4;
     int dotY = 14;
     int dotR = 4;
 
