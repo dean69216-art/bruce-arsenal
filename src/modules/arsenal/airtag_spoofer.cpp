@@ -2,6 +2,7 @@
 #include "core/display.h"
 #include "core/mykeyboard.h"
 #include <NimBLEDevice.h>
+#include <WiFi.h>
 #include <globals.h>
 
 static int spoofCount = 5;
@@ -49,7 +50,13 @@ void arsenal_airtag_spoofer(void) {
         int totalBroadcasts = 0;
 
         NimBLEDevice::deinit(true);
-        NimBLEDevice::init("");
+        WiFi.disconnect(true);
+        WiFi.mode(WIFI_OFF);
+        delay(100);
+        if (!NimBLEDevice::init("")) {
+            displayError("BLE init failed", true);
+            return;
+        }
         NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
 
         while (spoofRunning) {

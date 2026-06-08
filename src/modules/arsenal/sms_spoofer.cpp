@@ -2,6 +2,7 @@
 #include "core/display.h"
 #include "core/mykeyboard.h"
 #include <NimBLEDevice.h>
+#include <WiFi.h>
 #include <globals.h>
 
 
@@ -124,14 +125,20 @@ void arsenal_sms_notification_spoofer(void) {
         if (mode < 0) return;
 
         NimBLEDevice::deinit(true);
-        NimBLEDevice::init("");
+        WiFi.disconnect(true);
+        WiFi.mode(WIFI_OFF);
+        delay(100);
+        if (!NimBLEDevice::init("")) {
+            displayError("BLE init failed", true);
+            return;
+        }
         NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
 
         unsigned long startTime = millis();
 
-        while (true) {
+        NimBLEDevice::setSecurityAuth(false, false, false);
 
-            NimBLEDevice::setSecurityAuth(false, false, false);
+        while (true) {
 
 
             if (mode == 0 || (mode == 2 && notifsSent % 3 == 0)) {

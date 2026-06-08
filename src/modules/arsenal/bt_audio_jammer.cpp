@@ -2,6 +2,7 @@
 #include "core/display.h"
 #include "core/mykeyboard.h"
 #include <NimBLEDevice.h>
+#include <WiFi.h>
 #include <globals.h>
 
 
@@ -41,7 +42,7 @@ static bool isAudioDevice(NimBLEAdvertisedDevice &dev) {
 }
 
 class AudioScanCallbacks : public NimBLEScanCallbacks {
-    void onResult(NimBLEAdvertisedDevice *advertisedDevice) {
+    void onResult(const NimBLEAdvertisedDevice *advertisedDevice) {
         if (isAudioDevice(*advertisedDevice)) {
             String addr = advertisedDevice->getAddress().toString().c_str();
 
@@ -66,6 +67,8 @@ static void jamAudioTarget(String targetAddr) {
     int jamPackets = 0;
     unsigned long startTime = millis();
 
+    NimBLEDevice::setSecurityAuth(false, false, false);
+
     while (true) {
 
 
@@ -79,9 +82,6 @@ static void jamAudioTarget(String targetAddr) {
             }
             advData.setManufacturerData(payload);
             advData.setFlags(0x06);
-
-
-            NimBLEDevice::setSecurityAuth(false, false, false);
 
             pAdvertising->setAdvertisementData(advData);
             pAdvertising->start();
@@ -134,7 +134,13 @@ void arsenal_bt_audio_jammer(void) {
         audioDevices.clear();
 
         NimBLEDevice::deinit(true);
-        NimBLEDevice::init("");
+        WiFi.disconnect(true);
+        WiFi.mode(WIFI_OFF);
+        delay(100);
+        if (!NimBLEDevice::init("")) {
+            displayError("BLE init failed", true);
+            return;
+        }
         NimBLEScan *pScan = NimBLEDevice::getScan();
         pScan->setScanCallbacks(new AudioScanCallbacks());
         pScan->setActiveScan(true);

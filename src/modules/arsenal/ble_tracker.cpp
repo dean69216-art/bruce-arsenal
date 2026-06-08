@@ -2,6 +2,7 @@
 #include "core/display.h"
 #include "core/mykeyboard.h"
 #include <NimBLEDevice.h>
+#include <WiFi.h>
 #include <globals.h>
 
 struct TrackedDevice {
@@ -68,7 +69,7 @@ static String identifyDevice(NimBLEAdvertisedDevice &dev) {
 }
 
 class ArsenalBLECallbacks : public NimBLEScanCallbacks {
-    void onResult(NimBLEAdvertisedDevice *advertisedDevice) {
+    void onResult(const NimBLEAdvertisedDevice *advertisedDevice) {
         String addr = advertisedDevice->getAddress().toString().c_str();
         int rssi = advertisedDevice->getRSSI();
         String name = advertisedDevice->haveName() ? advertisedDevice->getName().c_str() : "";
@@ -114,7 +115,13 @@ void arsenal_ble_tracker(void) {
         trackerAlert = false;
 
         NimBLEDevice::deinit(true);
-        NimBLEDevice::init("");
+        WiFi.disconnect(true);
+        WiFi.mode(WIFI_OFF);
+        delay(100);
+        if (!NimBLEDevice::init("")) {
+            displayError("BLE init failed", true);
+            return;
+        }
         bleScan = NimBLEDevice::getScan();
         bleScan->setScanCallbacks(new ArsenalBLECallbacks());
         bleScan->setActiveScan(true);

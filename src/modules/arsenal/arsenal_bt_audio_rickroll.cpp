@@ -5,6 +5,7 @@
 #include "core/display.h"
 #include "core/mykeyboard.h"
 #include <NimBLEDevice.h>
+#include <WiFi.h>
 #include <globals.h>
 
 static const uint8_t RICKROLL_AUDIO[] = {
@@ -24,7 +25,13 @@ void arsenal_bt_audio_rickroll(void) {
     tft.drawCentreString(String("Esc:cancel"), tftWidth / 2, tftHeight - 20, 1);
 
     NimBLEDevice::deinit(true);
-    NimBLEDevice::init("Rick Astley");
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    delay(100);
+    if (!NimBLEDevice::init("Rick Astley")) {
+        displayError("BLE init failed", true);
+        return;
+    }
     NimBLEScan *pScan = NimBLEDevice::getScan();
     pScan->setActiveScan(false);
     pScan->setInterval(100);
@@ -44,7 +51,7 @@ void arsenal_bt_audio_rickroll(void) {
         FoundDevice *list;
         int *count;
         RickScanCb(FoundDevice *d, int *c) : list(d), count(c) {}
-        void onResult(NimBLEAdvertisedDevice *dev) {
+        void onResult(const NimBLEAdvertisedDevice *dev) {
             if (*count >= 8) return;
             String name = dev->getName().c_str();
             String addr = dev->getAddress().toString().c_str();

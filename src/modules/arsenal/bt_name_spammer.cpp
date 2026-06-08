@@ -2,6 +2,7 @@
 #include "core/display.h"
 #include "core/mykeyboard.h"
 #include <NimBLEDevice.h>
+#include <WiFi.h>
 #include <globals.h>
 
 
@@ -42,8 +43,16 @@ static const int NUM_NAMES = sizeof(SPAM_NAMES) / sizeof(SPAM_NAMES[0]);
 void arsenal_bt_name_spammer(void) {
     ARSENAL_SAFE_RUN([]() {
         NimBLEDevice::deinit(true);
-        NimBLEDevice::init("");
+        WiFi.disconnect(true);
+        WiFi.mode(WIFI_OFF);
+        delay(100);
+        if (!NimBLEDevice::init("")) {
+            displayError("BLE init failed", true);
+            return;
+        }
         NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
+
+        NimBLEDevice::setSecurityAuth(false, false, false);
 
         int nameIndex = 0;
         int totalSent = 0;
@@ -60,10 +69,6 @@ void arsenal_bt_name_spammer(void) {
 
             pAdvertising->setAdvertisementData(advData);
             pAdvertising->setScanResponseData(scanRespData);
-
-            NimBLEDevice::getAdvertising()->stop();
-
-            NimBLEDevice::setSecurityAuth(false, false, false);
 
             pAdvertising->start();
             delay(50);

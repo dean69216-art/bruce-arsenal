@@ -2,6 +2,7 @@
 #include "core/display.h"
 #include "core/mykeyboard.h"
 #include <NimBLEDevice.h>
+#include <WiFi.h>
 #include <globals.h>
 
 struct ProfiledDevice {
@@ -17,7 +18,7 @@ static ProfiledDevice profiledDevices[8];
 static int profiledCount = 0;
 
 class ProfilerCallbacks : public NimBLEScanCallbacks {
-    void onResult(NimBLEAdvertisedDevice *dev) {
+    void onResult(const NimBLEAdvertisedDevice *dev) {
         if (profiledCount >= 8) return;
         String addr = dev->getAddress().toString().c_str();
         for (int i = 0; i < profiledCount; i++) {
@@ -75,7 +76,13 @@ void arsenal_bt_device_profiler(void) {
     tft.drawCentreString(String("Esc:stop"), tftWidth / 2, tftHeight - 20, 1);
 
     NimBLEDevice::deinit(true);
-    NimBLEDevice::init("");
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    delay(100);
+    if (!NimBLEDevice::init("")) {
+        displayError("BLE init failed", true);
+        return;
+    }
     NimBLEScan *pScan = NimBLEDevice::getScan();
     ProfilerCallbacks cb;
     pScan->setScanCallbacks(&cb);
