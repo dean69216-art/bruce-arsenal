@@ -8,13 +8,13 @@
 
 <p align="center">
   <b>Custom offensive security firmware for ESP32 devices</b><br>
-  <i>26 attack tools • Mobile dashboard • Background evasion • 60K+ scripts</i>
+  <i>72 attack tools • Mobile dashboard • Background evasion • 60K+ scripts</i>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-ESP32--S3-blue?style=flat-square" alt="ESP32-S3">
   <img src="https://img.shields.io/badge/Target-T--Embed%20CC1101-green?style=flat-square" alt="T-Embed">
-  <img src="https://img.shields.io/badge/Tools-26+-red?style=flat-square" alt="Tools">
+  <img src="https://img.shields.io/badge/Tools-72+-red?style=flat-square" alt="Tools">
   <img src="https://img.shields.io/badge/Scripts-60K+-purple?style=flat-square" alt="Scripts">
   <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square" alt="Status">
 </p>
@@ -25,7 +25,7 @@
 
 A heavily modified version of [Bruce Firmware](https://github.com/pr3y/Bruce) with a custom **Arsenal** module bolted on — a full offensive security toolkit accessible from a single menu tab with a crosshair icon.
 
-All original Bruce features remain intact. Arsenal adds 26 new tools, a mobile web dashboard, background evasion services, and a script browser that can load 60K+ payloads from SD card.
+All original Bruce features remain intact. Arsenal Adds 72 new tools, a mobile web dashboard, background evasion services, and a script browser that can load 60K+ payloads from SD card.
 
 ---
 
@@ -141,7 +141,7 @@ These run persistently across all menus — not just inside Arsenal.
 Start Arsenal → Dashboard. Connect your phone to `ArsenalNet` (password: `arsenal32`). Open `192.168.4.1` in browser.
 
 **Features:**
-- Start/stop all 26 tools from phone
+- Start/stop all 72 tools from phone
 - Browse, upload, delete files on SD card (`/arsenal/` folder)
 - Upload `.bin` firmware for OTA update
 - Drag-and-drop script upload to categorized folders
