@@ -159,6 +159,7 @@ void arsenal_dns_spoofer(void) {
             }
 
             if (check(EscPress)) {
+                returnToMenu = true;
                 dnsRunning = false;
                 break;
             }

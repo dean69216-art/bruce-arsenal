@@ -165,9 +165,11 @@ void arsenal_flipper_import(void) {
     tft.drawCentreString(String("Esc:replay  Sel:done"), tftWidth / 2, tftHeight - 20, 1);
 
     while (!check(EscPress) && !check(SelPress)) delay(100);
+    returnToMenu = true;
 
     if (check(EscPress)) {
         while (check(EscPress)) delay(10);
+        returnToMenu = true;
         if (initRfModule("tx", 433.92)) {
             drawMainBorderWithTitle("Flipper Import");
             tft.setTextColor(TFT_GREEN, bruceConfig.bgColor);
@@ -178,12 +180,12 @@ void arsenal_flipper_import(void) {
             tft.drawCentreString(String("Esc:stop"), tftWidth / 2, tftHeight - 20, 1);
 
             for (int r = 0; r < 5; r++) {
-                if (check(EscPress)) break;
+                if (check(EscPress)) { returnToMenu = true; break; }
                 int pin = bruceConfigPins.rfModule == CC1101_SPI_MODULE ?
                     bruceConfigPins.CC1101_bus.io0 : bruceConfigPins.rfTx;
                 bool high = true;
                 for (int i = 0; i < durCount; i++) {
-                    if (check(EscPress)) break;
+                    if (check(EscPress)) { returnToMenu = true; break; }
                     digitalWrite(pin, high ? HIGH : LOW);
                     delayMicroseconds(durations[i]);
                     high = !high;

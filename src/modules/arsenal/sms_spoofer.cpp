@@ -199,13 +199,21 @@ void arsenal_sms_notification_spoofer(void) {
                 tft.drawCentreString(String("Esc to stop"), tftWidth / 2, tftHeight - 20, 1);
             }
 
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
             esp_task_wdt_reset();
             delay(10);
         }
 
         pAdvertising->stop();
-        NimBLEDevice::deinit(true);
+        NimBLEDevice::init("");
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        pAdvertising = nullptr;
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        #if defined(CONFIG_IDF_TARGET_ESP32C5)
+        esp_bt_controller_deinit();
+        #else
+        NimBLEDevice::deinit();
+        #endif
     });
 }
 #endif

@@ -146,5 +146,6 @@ void arsenal_upnp_port_opener(void) {
     tft.drawCentreString(String("Esc:done"), tftWidth / 2, tftHeight - 20, 1);
 
     while (!check(EscPress)) delay(100);
+    returnToMenu = true;
 }
 #endif

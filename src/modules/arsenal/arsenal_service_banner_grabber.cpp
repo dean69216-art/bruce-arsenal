@@ -41,7 +41,7 @@ void arsenal_service_banner_grabber(void) {
     tft.drawCentreString(String("Esc:stop"), tftWidth / 2, tftHeight - 20, 1);
 
     for (uint32_t i = 1; i <= total; i++) {
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
 
         IPAddress target((network + i) & 0xFF, ((network + i) >> 8) & 0xFF,
                          ((network + i) >> 16) & 0xFF, ((network + i) >> 24) & 0xFF);
@@ -116,4 +116,5 @@ void arsenal_service_banner_grabber(void) {
     tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
     tft.drawCentreString(String("Esc:done"), tftWidth / 2, tftHeight - 20, 1);
     while (!check(EscPress)) delay(100);
+    returnToMenu = true;
 }

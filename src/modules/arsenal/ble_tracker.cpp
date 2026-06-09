@@ -188,12 +188,20 @@ void arsenal_ble_tracker(void) {
             tft.setTextColor(TFT_RED, bruceConfig.bgColor);
             tft.drawCentreString(String("Esc to stop"), tftWidth / 2, tftHeight - 18, 1);
 
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
             esp_task_wdt_reset();
         }
 
         bleScan->stop();
-        NimBLEDevice::deinit(true);
+        NimBLEDevice::init("");
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        bleScan = nullptr;
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        #if defined(CONFIG_IDF_TARGET_ESP32C5)
+        esp_bt_controller_deinit();
+        #else
+        NimBLEDevice::deinit();
+        #endif
         trackedDevices.clear();
     });
 }

@@ -49,7 +49,7 @@ static void arpScan(IPAddress gateway, IPAddress subnet) {
     tft.setTextSize(FP);
 
     for (uint32_t i = 1; i <= totalHosts; i++) {
-        if (check(EscPress)) return;
+        if (check(EscPress)) { returnToMenu = true; return; }
 
         IPAddress target(
             (network >> 0) & 0xFF,
@@ -107,7 +107,7 @@ static void arpScan(IPAddress gateway, IPAddress subnet) {
 static void portScanHost(HostInfo &host) {
     host.openPorts.clear();
     for (int i = 0; i < NUM_PORTS; i++) {
-        if (check(EscPress)) return;
+        if (check(EscPress)) { returnToMenu = true; return; }
         if (tcpPortOpen(host.ip, SCAN_PORTS[i], 150)) {
             host.openPorts.push_back(SCAN_PORTS[i]);
         }

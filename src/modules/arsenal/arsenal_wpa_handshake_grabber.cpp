@@ -227,7 +227,7 @@ void arsenal_wpa_handshake_grabber(void) {
             tft.drawCentreString(String("Esc:stop & save"), tftWidth / 2, tftHeight - 20, 1);
         }
 
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         esp_task_wdt_reset();
         delay(50);
     }
@@ -251,6 +251,7 @@ void arsenal_wpa_handshake_grabber(void) {
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Press any key"), tftWidth / 2, tftHeight - 20, 1);
         while (!check(EscPress) && !check(SelPress)) delay(100);
+        returnToMenu = true;
     } else {
         displayRedStripe("No EAPOL frames captured");
         delay(1500);

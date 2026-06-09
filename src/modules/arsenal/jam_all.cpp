@@ -335,6 +335,7 @@ void arsenal_jam_all(void) {
             if (state.running) {
                 jamall_stop_all(state);
             }
+            returnToMenu = true;
             break;
         }
 

@@ -121,6 +121,7 @@ void arsenal_session_log_menu(void) {
                             tft.setTextColor(TFT_RED, bruceConfig.bgColor);
                             tft.drawCentreString(String("Press any key"), tftWidth / 2, tftHeight - 18, 1);
                             while (!check(EscPress) && !check(SelPress)) delay(100);
+                            returnToMenu = true;
                         }
                     }});
                 }

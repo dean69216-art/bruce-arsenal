@@ -62,7 +62,7 @@ void arsenal_qr_poisoner(void) {
 
 
         while (true) {
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
             delay(100);
         }
     });

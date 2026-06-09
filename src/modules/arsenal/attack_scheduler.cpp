@@ -140,6 +140,7 @@ void arsenal_attack_scheduler(void) {
             }
 
             if (check(EscPress)) {
+                returnToMenu = true;
                 schedulerRunning = false;
                 break;
             }

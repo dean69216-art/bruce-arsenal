@@ -71,6 +71,7 @@ void arsenal_doorbell_replay(void) {
         delay(10);
     }
 
+    returnToMenu = true;
     deinitRfModule();
 
     if (gotSignal) {

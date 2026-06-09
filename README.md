@@ -17,8 +17,29 @@ A modified [Bruce Firmware](https://github.com/pr3y/Bruce) with a custom **Arsen
 
 ## Installation
 
-1. Download the `.bin` from [Releases](../../releases)
-2. Flash via [ESP Web Flasher](https://espressif.github.io/esptool-js/) (Chrome/Edge) or OTA via Arsenal Dashboard
+### Quick Flash (Recommended)
+
+1. Download the `.bin` for your board from [Releases](../../releases)
+2. Go to [ESP Web Flasher](https://espressif.github.io/esptool-js/) (use Chrome or Edge)
+3. Click **Connect**, select your ESP32 serial port
+4. Click **Program**, select the `.bin` file, set address to `0x0`
+5. Click **Program** and wait for completion
+6. Press **RST** on your device or unplug/replug USB
+
+### OTA Update (After First Flash)
+
+1. Connect your phone to `ArsenalNet` (password: `arsenal32`)
+2. Open `192.168.4.1` in your browser
+3. Go to **OTA Update**, select the `.bin` file
+4. Wait for upload and automatic reboot
+
+### Flash via esptool (Advanced)
+
+```bash
+pip install esptool
+esptool.py --port COM3 --baud 460800 write_flash 0x0 firmware.bin
+```
+Replace `COM3` with your serial port. On Linux use `/dev/ttyUSB0`.
 
 ---
 
@@ -65,54 +86,40 @@ A modified [Bruce Firmware](https://github.com/pr3y/Bruce) with a custom **Arsen
 
 ---
 
-## Board Compatibility
+## Not Compatible
 
-| Board | Flash | Version |
-|-------|-------|---------|
-| **ESP32-S3** | | |
-| LilyGo T-Embed CC1101 | 16MB | Full |
-| LilyGo T-Deck Pro | 16MB | Full |
-| LilyGo T-Deck | 16MB | Full |
-| LilyGo T-Display S3 | 16MB | Full |
-| LilyGo T-Display S3 Touch | 16MB | Full |
-| LilyGo T-Display S3 MMC | 16MB | Full |
-| LilyGo T-Display S3 Touch MMC | 16MB | Full |
-| LilyGo T-HMI | 16MB | Full |
-| LilyGo T-LoRa Pager | 16MB | Full |
-| LilyGo T-Watch S3 | 16MB | Full |
-| M5Stack Cardputer | 8MB | Full |
-| M5Stack CoreS3 | 16MB | Full |
-| M5Stack StickS3 | 16MB | Full |
-| ESP32-S3 DevKitC-1 | 16MB | Full |
-| Smoochiee Board | 16MB | Full |
-| **ESP32-C5** | | |
-| ESP32-C5 | 4MB | Full |
-| ESP32-C5 TFT | 4MB | Full |
-| **ESP32** | | |
-| M5Stack Core 4MB | 4MB | LITE |
-| M5Stack Core 16MB | 16MB | LITE |
-| M5Stack CPlus 1.1 | 4MB | LITE |
-| CYD-2432S028 | 4MB | LITE |
-| CYD-2USB | 4MB | LITE |
-| CYD-2432W328C | 4MB | LITE |
-| CYD-2432W328R | 4MB | LITE |
-| CYD-3248S035R | 4MB | LITE |
-| CYD-3248S035C | 4MB | LITE |
-| Elecrow 2.4B | 4MB | LITE |
-| Elecrow 2.8B | 4MB | LITE |
-| Elecrow 3.5B | 4MB | LITE |
-| LilyGo T-Display TTGO | 4MB | LITE |
-| Marauder Mini | 4MB | LITE |
-| Marauder V4-V6 | 4MB | LITE |
-| Marauder V7 | 4MB | LITE |
-| Marauder V6.1 | 4MB | LITE |
-| Awok Mini | 4MB | LITE |
-| Awok Touch | 4MB | LITE |
-| WaveSentry R1 | 4MB | LITE |
-| Phantom S024R | 4MB | LITE |
-| **Known Issues** | | |
-| M5Stack CPlus2 | - | DRAM overflow |
-| M5Stack Core2 | - | DRAM overflow |
+- **M5Stack CPlus2** - DRAM overflow (use LITE version)
+- **M5Stack Core2** - DRAM overflow (use LITE version)
+
+All other supported Bruce boards work with Full or LITE depending on flash/RAM.
+
+---
+
+## FAQ
+
+**Q: Device boots to a blank screen or keeps restarting**
+A: Flash again with the correct `.bin` for your board. Make sure you selected the right serial port.
+
+**Q: "Low memory" error when starting a tool**
+A: Your board doesn't have enough free RAM. Close other running features or use a board with more memory (ESP32-S3).
+
+**Q: SD card features don't work**
+A: Insert a formatted FAT32 SD card before booting. Some boards require SD card in the slot at boot time.
+
+**Q: WiFi tools crash or don't find networks**
+A: Make sure WiFi antenna is connected. On boards with external antenna, check the antenna switch.
+
+**Q: BLE features say "init failed"**
+A: BLE requires NimBLE library. If building from source, make sure `h2zero/NimBLE-Arduino` is in your `lib_deps`.
+
+**Q: How do I access the Remote Dashboard?**
+A: Connect phone to WiFi `ArsenalNet` (password: `arsenal32`), open `192.168.4.1` in browser.
+
+**Q: How do I update firmware OTA?**
+A: Connect to `ArsenalNet`, open dashboard, go to OTA Update, select new `.bin` file.
+
+**Q: Can I build from source?**
+A: Yes. Install [PlatformIO](https://platformio.org/), clone this repo, run `pio run -e <board-name>`. Board names are in `platformio.ini`.
 
 ---
 

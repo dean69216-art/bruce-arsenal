@@ -89,7 +89,7 @@ void arsenal_espnow_c2(void) {
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc:stop  Sel:cmd"), tftWidth / 2, tftHeight - 20, 1);
 
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         if (check(SelPress)) {
             while (check(SelPress)) delay(10);
             char cmd[128] = "";
@@ -102,7 +102,7 @@ void arsenal_espnow_c2(void) {
                     int len = strlen(cmd);
                     if (len < 127) { cmd[len] = c; cmd[len+1] = '\0'; }
                 }
-                if (check(EscPress)) break;
+                if (check(EscPress)) { returnToMenu = true; break; }
                 delay(10);
             }
             if (strlen(cmd) > 0) {

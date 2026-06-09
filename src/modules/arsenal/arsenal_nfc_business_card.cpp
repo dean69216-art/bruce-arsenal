@@ -60,7 +60,7 @@ void arsenal_nfc_business_card(void) {
     tft.drawCentreString(String("Place tag near reader"), tftWidth / 2, tftHeight - 20, 1);
 
     while (true) {
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         if (check(SelPress)) {
             while (check(SelPress)) delay(10);
             drawMainBorderWithTitle("NFC Biz Card");
@@ -82,7 +82,7 @@ void arsenal_nfc_business_card(void) {
                     if (c == '\n' || c == '\r') break;
                     input += c;
                 }
-                if (check(EscPress)) break;
+                if (check(EscPress)) { returnToMenu = true; break; }
                 delay(10);
             }
 

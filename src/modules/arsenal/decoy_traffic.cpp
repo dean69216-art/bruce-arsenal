@@ -117,7 +117,7 @@ void arsenal_decoy_traffic(void) {
                 tft.drawCentreString(String("Esc:stop Up/Dn:intensity"), tftWidth / 2, tftHeight - 20, 1);
             }
 
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
             if (check(UpPress) || check(NextPress)) {
                 intensity += 2;
                 if (intensity > 30) intensity = 30;

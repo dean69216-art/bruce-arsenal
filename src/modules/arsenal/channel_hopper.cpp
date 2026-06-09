@@ -77,7 +77,7 @@ void arsenal_channel_hopper(void) {
                 tft.drawCentreString(String("Esc:stop Up/Dn:speed"), tftWidth / 2, tftHeight - 20, 1);
             }
 
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
             if (check(UpPress) || check(NextPress)) {
                 if (hopInterval > 20) hopInterval -= 20;
             }

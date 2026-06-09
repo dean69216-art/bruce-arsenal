@@ -129,6 +129,7 @@ void arsenal_dhcp_starvation(void) {
 
 
             if (check(EscPress)) {
+                returnToMenu = true;
                 running = false;
                 break;
             }

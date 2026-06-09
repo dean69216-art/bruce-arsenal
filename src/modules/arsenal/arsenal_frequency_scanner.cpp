@@ -39,7 +39,7 @@ void arsenal_frequency_scanner(void) {
     unsigned long startTime = millis();
 
     for (int f = 0; f < totalFreqs; f++) {
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
 
         deinitRfModule();
         delay(10);
@@ -100,5 +100,6 @@ void arsenal_frequency_scanner(void) {
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc:done"), tftWidth / 2, tftHeight - 20, 1);
         while (!check(EscPress)) delay(100);
+        returnToMenu = true;
     }
 }

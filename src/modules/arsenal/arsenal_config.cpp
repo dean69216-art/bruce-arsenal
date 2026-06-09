@@ -139,6 +139,7 @@ bool arsenal_pin_check(void) {
             pos++;
         } else if (check(EscPress)) {
             while (check(EscPress)) delay(10);
+            returnToMenu = true;
             return false;
         }
         delay(20);
@@ -417,6 +418,7 @@ void arsenal_attack_stats(void) {
         } else if (check(EscPress)) {
             while (check(EscPress)) delay(10);
             arsenal_stats_save();
+            returnToMenu = true;
             return;
         }
         delay(50);

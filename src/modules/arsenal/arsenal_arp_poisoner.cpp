@@ -53,7 +53,7 @@ void arsenal_arp_poisoner(void) {
 
     while (true) {
         for (uint32_t i = 1; i <= total; i++) {
-            if (check(EscPress)) goto done;
+            if (check(EscPress)) { returnToMenu = true; goto done; }
 
             uint32_t host = netBase + i;
             IPAddress tip((uint8_t)(host & 0xFF), (uint8_t)((host >> 8) & 0xFF),
@@ -99,5 +99,6 @@ done:
     tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
     tft.drawCentreString(String("Esc:done"), tftWidth / 2, tftHeight - 20, 1);
     while (!check(EscPress)) delay(100);
+    returnToMenu = true;
 }
 #endif

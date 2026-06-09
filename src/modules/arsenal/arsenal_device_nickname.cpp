@@ -97,7 +97,7 @@ void arsenal_device_nickname(void) {
                 if (c == '\n' || c == '\r') break;
                 input += c;
             }
-            if (check(EscPress)) return;
+            if (check(EscPress)) { returnToMenu = true; return; }
             delay(10);
         }
 
@@ -138,6 +138,7 @@ void arsenal_device_nickname(void) {
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc:done"), tftWidth / 2, tftHeight - 20, 1);
         while (!check(EscPress)) delay(100);
+        returnToMenu = true;
     }});
 
     options.push_back({"Clear All", []() {

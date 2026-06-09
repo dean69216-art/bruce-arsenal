@@ -95,7 +95,15 @@ void arsenal_bt_device_profiler(void) {
 
     if (profiledCount == 0) {
         displayRedStripe("No BLE devices found");
-        NimBLEDevice::deinit(true);
+        NimBLEDevice::init("");
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        pScan = nullptr;
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        #if defined(CONFIG_IDF_TARGET_ESP32C5)
+        esp_bt_controller_deinit();
+        #else
+        NimBLEDevice::deinit();
+        #endif
         return;
     }
 
@@ -132,10 +140,18 @@ void arsenal_bt_device_profiler(void) {
         tft.drawCentreString(String("Esc:stop  Sel:next"), tftWidth / 2, tftHeight - 20, 1);
 
         while (!check(EscPress) && !check(SelPress)) delay(100);
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         while (check(SelPress)) delay(10);
     }
 
-    NimBLEDevice::deinit(true);
+    NimBLEDevice::init("");
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    pScan = nullptr;
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    #if defined(CONFIG_IDF_TARGET_ESP32C5)
+    esp_bt_controller_deinit();
+    #else
+    NimBLEDevice::deinit();
+    #endif
 }
 #endif

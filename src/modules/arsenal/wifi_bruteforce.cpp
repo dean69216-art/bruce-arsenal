@@ -253,7 +253,7 @@ void arsenal_wifi_bruteforce(void) {
 
             attempted++;
 
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
             esp_task_wdt_reset();
         }
 
@@ -288,6 +288,7 @@ void arsenal_wifi_bruteforce(void) {
             }
 
             while (!check(EscPress) && !check(SelPress)) delay(100);
+            returnToMenu = true;
         } else {
             displayRedStripe("Not found (" + String(attempted) + " tried)");
             delay(2000);

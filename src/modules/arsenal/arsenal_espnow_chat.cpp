@@ -96,7 +96,7 @@ void arsenal_espnow_chat(void) {
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc:stop  Sel:send"), tftWidth / 2, tftHeight - 20, 1);
 
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         if (check(SelPress)) {
             while (check(SelPress)) delay(10);
             char input[128] = "";
@@ -109,7 +109,7 @@ void arsenal_espnow_chat(void) {
                     int len = strlen(input);
                     if (len < 127) { input[len] = c; input[len+1] = '\0'; }
                 }
-                if (check(EscPress)) break;
+                if (check(EscPress)) { returnToMenu = true; break; }
                 delay(10);
             }
             if (strlen(input) > 0) {

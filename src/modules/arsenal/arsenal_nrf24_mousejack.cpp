@@ -33,6 +33,7 @@ void arsenal_nrf24_mousejack(void) {
     tft.print("menu for RF operations.");
     tft.drawCentreString(String("Press any key"), tftWidth / 2, tftHeight - 20, 1);
     while (!check(EscPress) && !check(SelPress)) delay(100);
+    returnToMenu = true;
 }
 
 #endif

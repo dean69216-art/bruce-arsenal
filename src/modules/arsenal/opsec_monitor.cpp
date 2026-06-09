@@ -182,7 +182,7 @@ void arsenal_opsec_monitor(void) {
             tft.setTextColor(TFT_RED, bruceConfig.bgColor);
             tft.drawCentreString(String("Esc to stop"), tftWidth / 2, tftHeight - 18, 1);
 
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
             esp_task_wdt_reset();
             delay(200);
         }

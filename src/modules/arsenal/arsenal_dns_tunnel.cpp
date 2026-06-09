@@ -162,7 +162,7 @@ void arsenal_dns_tunnel(void) {
             tft.drawCentreString(String("Esc:stop"), tftWidth / 2, tftHeight - 20, 1);
         }
 
-        if (check(EscPress)) dnsTunnelActive = false;
+        if (check(EscPress)) { returnToMenu = true; dnsTunnelActive = false; }
         esp_task_wdt_reset();
         delay(10);
     }

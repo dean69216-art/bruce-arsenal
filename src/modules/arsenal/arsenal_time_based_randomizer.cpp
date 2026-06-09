@@ -59,6 +59,7 @@ void arsenal_time_based_randomizer(void) {
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc:done"), tftWidth / 2, tftHeight - 20, 1);
         while (!check(EscPress)) delay(100);
+        returnToMenu = true;
     }});
 
     addOptionToMainMenu();

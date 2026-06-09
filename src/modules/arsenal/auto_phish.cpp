@@ -130,6 +130,7 @@ void arsenal_captive_portal_autophish(void) {
             tft.printf("Found %d SSIDs", (int)probedSSIDs.size());
 
             if (check(EscPress)) {
+                returnToMenu = true;
                 phishCapturing = false;
                 esp_wifi_set_promiscuous(false);
                 return;
@@ -223,7 +224,7 @@ void arsenal_captive_portal_autophish(void) {
             tft.setTextColor(TFT_RED, bruceConfig.bgColor);
             tft.drawCentreString(String("Esc to stop"), tftWidth / 2, tftHeight - 20, 1);
 
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
             esp_task_wdt_reset();
             delay(300);
         }

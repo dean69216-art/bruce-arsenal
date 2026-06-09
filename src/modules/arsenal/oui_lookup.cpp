@@ -74,6 +74,7 @@ void arsenal_oui_lookup(void) {
             tft.drawCentreString(String("Press any key"), tftWidth / 2, tftHeight - 20, 1);
 
             while (!check(EscPress) && !check(SelPress)) delay(100);
+            returnToMenu = true;
             return;
         }
 

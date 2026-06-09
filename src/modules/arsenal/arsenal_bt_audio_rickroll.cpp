@@ -91,7 +91,15 @@ void arsenal_bt_audio_rickroll(void) {
 
     if (devCount == 0) {
         displayRedStripe("No devices found");
-        NimBLEDevice::deinit(true);
+        NimBLEDevice::init("");
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        pScan = nullptr;
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        #if defined(CONFIG_IDF_TARGET_ESP32C5)
+        esp_bt_controller_deinit();
+        #else
+        NimBLEDevice::deinit();
+        #endif
         return;
     }
 
@@ -109,7 +117,15 @@ void arsenal_bt_audio_rickroll(void) {
     loopOptions(options, MENU_TYPE_SUBMENU, "Target Device");
 
     if (targetIdx < 0) {
-        NimBLEDevice::deinit(true);
+        NimBLEDevice::init("");
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        pScan = nullptr;
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        #if defined(CONFIG_IDF_TARGET_ESP32C5)
+        esp_bt_controller_deinit();
+        #else
+        NimBLEDevice::deinit();
+        #endif
         return;
     }
 
@@ -155,9 +171,18 @@ void arsenal_bt_audio_rickroll(void) {
         }
         esp_task_wdt_reset();
     }
+    returnToMenu = true;
 
     pAdv->stop();
-    NimBLEDevice::deinit(true);
+    NimBLEDevice::init("");
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    pAdv = nullptr;
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    #if defined(CONFIG_IDF_TARGET_ESP32C5)
+    esp_bt_controller_deinit();
+    #else
+    NimBLEDevice::deinit();
+    #endif
 }
 
 #endif

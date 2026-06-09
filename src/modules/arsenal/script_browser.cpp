@@ -86,7 +86,7 @@ static void executeScript(String filepath) {
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Press Sel to run, Esc to cancel"), tftWidth / 2, tftHeight - 20, 1);
         while (true) {
-            if (check(EscPress)) return;
+            if (check(EscPress)) { returnToMenu = true; return; }
             if (check(SelPress)) {
 
                 displayRedStripe("Executing...");
@@ -107,7 +107,7 @@ static void executeScript(String filepath) {
         tft.setTextColor(TFT_RED, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc to cancel"), tftWidth / 2, tftHeight - 20, 1);
         while (true) {
-            if (check(EscPress)) return;
+            if (check(EscPress)) { returnToMenu = true; return; }
             if (check(SelPress)) {
 
                 displayRedStripe("Transmitting...");
@@ -128,7 +128,7 @@ static void executeScript(String filepath) {
         tft.setTextColor(TFT_RED, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc to cancel"), tftWidth / 2, tftHeight - 20, 1);
         while (true) {
-            if (check(EscPress)) return;
+            if (check(EscPress)) { returnToMenu = true; return; }
             if (check(SelPress)) {
 
                 displayRedStripe("Transmitting IR...");
@@ -155,7 +155,7 @@ static void executeScript(String filepath) {
         tft.setTextColor(TFT_RED, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc to cancel"), tftWidth / 2, tftHeight - 20, 1);
         while (true) {
-            if (check(EscPress)) return;
+            if (check(EscPress)) { returnToMenu = true; return; }
             if (check(SelPress)) {
 
                 displayRedStripe("Launching portal...");
@@ -176,7 +176,7 @@ static void executeScript(String filepath) {
         tft.setTextColor(TFT_RED, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc to cancel"), tftWidth / 2, tftHeight - 20, 1);
         while (true) {
-            if (check(EscPress)) return;
+            if (check(EscPress)) { returnToMenu = true; return; }
             if (check(SelPress)) {
 
                 displayRedStripe("Running script...");
@@ -203,19 +203,9 @@ static void executeScript(String filepath) {
         tft.setTextColor(TFT_RED, bruceConfig.bgColor);
         tft.drawCentreString(String("Press any key"), tftWidth / 2, tftHeight - 20, 1);
         while (!check(EscPress) && !check(SelPress)) delay(100);
+        returnToMenu = true;
     }
-}
 
-
-static void browseDirectory(String path, int depth) {
-    if (depth > 5) return;
-
-    File dir = SD.open(path);
-    if (!dir || !dir.isDirectory()) {
-        displayRedStripe("Can't open folder");
-        delay(1000);
-        return;
-    }
 
     options.clear();
 
@@ -312,6 +302,7 @@ void arsenal_script_browser(void) {
         tft.setTextColor(TFT_RED, bruceConfig.bgColor);
         tft.drawCentreString(String("Press any key"), tftWidth / 2, tftHeight - 20, 1);
         while (!check(EscPress) && !check(SelPress)) delay(100);
+        returnToMenu = true;
         return;
     }
 

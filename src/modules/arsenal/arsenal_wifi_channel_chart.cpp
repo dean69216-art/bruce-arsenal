@@ -70,7 +70,7 @@ void arsenal_wifi_channel_chart(void) {
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc:stop"), tftWidth / 2, tftHeight - 20, 1);
 
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         delay(300);
     }
 

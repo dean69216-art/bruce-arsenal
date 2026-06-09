@@ -90,7 +90,7 @@ void arsenal_phish_windows_update(void) {
         tft.printf("IP: %s", WiFi.softAPIP().toString().c_str());
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc:stop"), tftWidth / 2, tftHeight - 20, 1);
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         delay(200);
     }
 

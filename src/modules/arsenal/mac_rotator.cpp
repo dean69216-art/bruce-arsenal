@@ -83,7 +83,7 @@ void arsenal_mac_rotator(void) {
             }
 
 
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
             if (check(SelPress)) {
                 applyRandomMAC();
             }

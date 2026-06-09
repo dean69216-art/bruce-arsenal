@@ -205,7 +205,7 @@ void arsenal_device_fingerprinter(void) {
             tft.setTextColor(TFT_RED, bruceConfig.bgColor);
             tft.drawCentreString(String("Esc:stop Sel:details"), tftWidth / 2, tftHeight - 18, 1);
 
-            if (check(EscPress)) break;
+            if (check(EscPress)) { returnToMenu = true; break; }
 
 
             if (check(SelPress) && !fingerprints.empty()) {
@@ -231,6 +231,7 @@ void arsenal_device_fingerprinter(void) {
                             tft.setCursor(12, dy); tft.print("- " + d.probedSSIDs[s].substring(0, 20)); dy += 12;
                         }
                         while (!check(EscPress) && !check(SelPress)) delay(100);
+                        returnToMenu = true;
                     }});
                 }
                 loopOptions(options, MENU_TYPE_SUBMENU, "Devices");

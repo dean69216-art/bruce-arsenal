@@ -107,7 +107,7 @@ void arsenal_ssid_history_logger(void) {
         tft.setTextColor(TFT_YELLOW, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc:stop  Sel:save"), tftWidth / 2, tftHeight - 20, 1);
 
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         if (check(SelPress)) {
             while (check(SelPress)) delay(10);
             if (setupSdCard()) {

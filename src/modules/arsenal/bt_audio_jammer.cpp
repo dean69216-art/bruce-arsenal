@@ -124,7 +124,7 @@ static void jamAudioTarget(String targetAddr) {
             tft.drawCentreString(String("Esc to stop"), tftWidth / 2, tftHeight - 20, 1);
         }
 
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         esp_task_wdt_reset();
         delay(5);
     }
@@ -165,6 +165,18 @@ void arsenal_bt_audio_jammer(void) {
             options.push_back({"Back", []() {}});
             loopOptions(options, MENU_TYPE_SUBMENU, "No audio found");
 
+            if (returnToMenu) {
+                NimBLEDevice::init("");
+                vTaskDelay(100 / portTICK_PERIOD_MS);
+                pScan = nullptr;
+                vTaskDelay(100 / portTICK_PERIOD_MS);
+                #if defined(CONFIG_IDF_TARGET_ESP32C5)
+                esp_bt_controller_deinit();
+                #else
+                NimBLEDevice::deinit();
+                #endif
+                return;
+            }
 
             jamAudioTarget("FF:FF:FF:FF:FF:FF");
         } else {
@@ -181,9 +193,30 @@ void arsenal_bt_audio_jammer(void) {
             }});
 
             loopOptions(options, MENU_TYPE_SUBMENU, "Select Target");
+
+            if (returnToMenu) {
+                NimBLEDevice::init("");
+                vTaskDelay(100 / portTICK_PERIOD_MS);
+                pScan = nullptr;
+                vTaskDelay(100 / portTICK_PERIOD_MS);
+                #if defined(CONFIG_IDF_TARGET_ESP32C5)
+                esp_bt_controller_deinit();
+                #else
+                NimBLEDevice::deinit();
+                #endif
+                return;
+            }
         }
 
-        NimBLEDevice::deinit(true);
+        NimBLEDevice::init("");
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        pScan = nullptr;
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        #if defined(CONFIG_IDF_TARGET_ESP32C5)
+        esp_bt_controller_deinit();
+        #else
+        NimBLEDevice::deinit();
+        #endif
     });
 }
 #endif

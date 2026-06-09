@@ -71,7 +71,7 @@ void arsenal_car_keyfob_logger(void) {
         unsigned long scanStart = millis();
 
         while (millis() - scanStart < 3000) {
-            if (check(EscPress)) goto done;
+            if (check(EscPress)) { returnToMenu = true; goto done; }
             if (check(SelPress)) {
                 while (check(SelPress)) delay(10);
                 freqIdx = (freqIdx + 1) % freqCount;

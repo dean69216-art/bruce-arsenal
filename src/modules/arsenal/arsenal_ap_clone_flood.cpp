@@ -120,7 +120,7 @@ void arsenal_ap_clone_flood(void) {
         tft.setTextColor(TFT_RED, bruceConfig.bgColor);
         tft.drawCentreString(String("Esc:stop"), tftWidth / 2, tftHeight - 20, 1);
 
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         esp_task_wdt_reset();
         delay(50);
     }

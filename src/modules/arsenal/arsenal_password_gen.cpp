@@ -118,6 +118,7 @@ void arsenal_password_generator(void) {
             loopOptions(options, MENU_TYPE_SUBMENU, "Password Gen");
         } else if (check(EscPress)) {
             while (check(EscPress)) delay(10);
+            returnToMenu = true;
             return;
         }
         delay(50);

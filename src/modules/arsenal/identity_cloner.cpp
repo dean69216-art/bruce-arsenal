@@ -104,6 +104,7 @@ void arsenal_identity_cloner(void) {
             ch = (ch % 14) + 1;
 
             if (check(EscPress)) {
+                returnToMenu = true;
                 captureActive = false;
                 esp_wifi_set_promiscuous(false);
                 return;

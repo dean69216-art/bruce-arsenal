@@ -73,7 +73,7 @@ void arsenal_beacon_flood(void) {
             tft.drawCentreString(String("Esc:stop  Up/Dn:rate"), tftWidth / 2, tftHeight - 20, 1);
         }
 
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         if (check(UpPress) || check(NextPress)) { rate += 5; if (rate > 50) rate = 50; }
         if (check(DownPress) || check(PrevPress)) { rate -= 5; if (rate < 1) rate = 1; }
 

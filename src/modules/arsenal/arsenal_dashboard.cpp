@@ -663,7 +663,7 @@ void arsenal_remote_dashboard(void) {
     tft.drawCentreString(String("Press Esc to stop"), tftWidth / 2, tftHeight - 20, 1);
 
     while (true) {
-        if (check(EscPress)) break;
+        if (check(EscPress)) { returnToMenu = true; break; }
         delay(100);
     }
 
