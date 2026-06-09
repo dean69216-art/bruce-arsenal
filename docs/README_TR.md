@@ -1,215 +1,90 @@
-🌐 [English](../README.md) | [Português](README_PT.md) | [Italiano](README_IT.md) | [Français](README_FR.md) | [Русский](README_RU.md) | [中文](README_ZH.md) | [Polski](README_PL.md) | [Nederlands](README_NL.md) | [Türkçe](README_TR.md) | [Deutsch](README_DE.md) | [Tiếng Việt](README_VN.md) | [Español](README_ES.md) | [Indonesia](README_ID.md) | [العربية](README_AR.md)
+?? [English](../README.md) | [Portugues](README_PT.md) | [Italiano](README_IT.md) | [Francais](README_FR.md) | [Russian](README_RU.md) | [Chinese](README_ZH.md) | [Polski](README_PL.md) | [Nederlands](README_NL.md) | [Turkce](README_TR.md) | [Deutsch](README_DE.md) | [Vietnamese](README_VN.md) | [Espanol](README_ES.md) | [Indonesia](README_ID.md) | [Arabic](README_AR.md)
+
+<h1 align="center">?? Bruce Arsenal</h1>
 
 <p align="center">
-  <img src="../media/bruce_banner.jpg" alt="Bruce Arsenal" width="700">
-</p>
-
-<h1 align="center">🎯 Bruce Arsenal</h1>
-
-<p align="center">
-  <b>ESP32 cihazlar için özel saldırı güvenlik yazılımı</b><br>
-  <i>26 saldırı aracı • Mobil kontrol paneli • Arka plan kaçınma • 60K+ betik</i>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Platform-ESP32--S3-blue?style=flat-square" alt="ESP32-S3">
-  <img src="https://img.shields.io/badge/Target-T--Embed%20CC1101-green?style=flat-square" alt="T-Embed">
-  <img src="https://img.shields.io/badge/Tools-26+-red?style=flat-square" alt="Tools">
-  <img src="https://img.shields.io/badge/Scripts-60K+-purple?style=flat-square" alt="Scripts">
-  <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square" alt="Status">
+  <b>ESP32 cihazlari icin ozel saldiri guvenlik firmware'i</b><br>
+  <i>72 araç - Bir firmware - Coklu cihaz</i>
 </p>
 
 ---
 
 ## Bu Nedir
 
-[Bruce Firmware](https://github.com/pr3y/Bruce)'ın kapsamlı bir şekilde değiştirilmiş versiyonu, entegre edilmiş özel bir **Arsenal** modülü ile — nişangah simgeli tek bir menü sekmesinden erişilebilen tam bir saldırı güvenlik araç seti.
-
-Tüm orijinal Bruce özellikleri bozulmadan kalır. Arsenal 26 yeni araç, mobil web kontrol paneli, arka plan kaçınma servisleri ve SD karttan 60K+ payload yükleyebilen bir betik tarayıcısı ekler.
+Bruce Firmware'in degistirilmis versiyonu, ozel Arsenal modulu ile - tek bir menuden erisilebilen 72 saldiri guvenlik araci.
 
 ---
 
 ## Kurulum
 
-1. `.bin` dosyasını [Releases](../../releases) sayfasından indirin
-2. Cihazınıza şu yöntemlerden biriyle yükleyin:
-   - **USB:** [ESP Web Flasher](https://espressif.github.io/esptool-js/) (Chrome/Edge)
-   - **OTA:** İlk yüklemeden sonra Arsenal → Dashboard → telefondan yeni .bin yükleyin
-3. Tamam
+1. Releases'den .bin dosyasini indirin
+2. ESP Web Flasher (Chrome/Edge) ile veya Arsenal Dashboard uzerinden OTA ile flashlayin
 
 ---
 
-## Arsenal Menüsü
+## Arsenal Araclari (72)
 
-```
-🎯 Arsenal
-├── WiFi Arsenal ──────── 8 saldırı WiFi aracı
-├── BLE Arsenal ───────── 5 Bluetooth saldırı aracı
-├── İstihbarat ────────── 3 keşif/farkındalık aracı
-├── Kaçınma ───────────── 5 gizlilik/anti-algılama aracı
-├── Kombolar ──────────── Önceden ayarlanmış + özel saldırı zincirleri
-├── Zamanlayıcı ────────── Gecikmeli saldırı yürütme
-├── Betikler ──────────── SD'den 60K+ payload göz atma
-├── Oturum Günlüğü ────── SD'ye aktivite kaydı
-├── Jam All ───────────── Çoklu bant eşzamanlı karıştırma (özel GUI)
-└── Dashboard ─────────── Mobil web UI + dosya yöneticisi + OTA
-```
+### WiFi Arsenal (11)
+Network Scanner, DHCP Starvation, Karma Attack, DNS Spoofer, Auto-Phish Portal, Cred Forward, Auth Flood, AP Clone Flood, SSL Strip Lite, DNS Tunnel, WPS PIN Attack
 
----
+### BLE Arsenal (6)
+BLE Tracker, BT Name Spammer, AirTag Spoofer, Audio Jammer, Notification Spoofer, BT Rickroll
 
-## Araçlar
+### Istihbarat (8)
+Device Fingerprinter, OPSEC Monitor, OUI Lookup, Probe Log, Banner Grabber, SmartHome Scan, Channel Chart, People Counter
 
-### WiFi Arsenal
+### Kacis (5)
+MAC Rotator, Channel Hopper, Decoy Traffic, Identity Cloner, Time Randomizer
 
-| Araç | Ne Yapar |
-|------|----------|
-| **Network Scanner** | ARP tarama + TCP port tarama. Cihazları, açık portları, üretici adlarını gösterir |
-| **DHCP Starvation** | Sahte MAC'lerle DHCP isteklerini doldurup yönlendiricinin IP havuzunu tüketir |
-| **Karma Attack** | Tüm WiFi probe isteklerine yanıt verir — yakındaki cihazlar otomatik olarak size bağlanır |
-| **DNS Spoofer** | AP olarak çalışırken DNS'yi yakalar. Tüm alan adları portalınıza yönlenir |
-| **Portal Templates** | SD karttan özel phishing HTML yükler. Kimlik bilgilerini dosyaya kaydeder |
-| **Auto-Phish Portal** | Kurbanların hangi ağları aradığını tespit eder, SSID'yi klonlar, portal sunar |
-| **Cred Forward** | Portal kimlik bilgilerini yakalar → gerçek AP'ye otomatik bağlanır → trafiği köprüler. Tam şeffaf MITM |
-| **WiFi Brute Force** | SSID adından akıllı kelime listesi üretir (yıl kombinasyonları, leet speak, yaygın kalıplar). Canlı olarak dener |
+### Phishing (4)
+Win Update Phish, WiFi Speed Phish, OAuth Phish, Device Found Phish
 
-### BLE Arsenal
+### Sub-GHz / RF (6)
+NRF24 MouseJack, Doorbell Replay, Garage Brute Force, Keyfob Logger, Frequency Scanner, Flipper Import
 
-| Araç | Ne Yapar |
-|------|----------|
-| **BLE Tracker** | RSSI mesafe tahmini ile sürekli BLE tarama. Sizi takip eden AirTag, SmartTag, Tile'ları tespit eder |
-| **Name Spammer** | BLE advertising kanallarını yüzlerce rastgele cihaz adıyla doldurur |
-| **AirTag Spoofer** | Sahte Apple FindMy AirTag beacon'ları yayınlar. Hayalet etiketler yakındaki iPhone'larda görünür |
-| **Audio Jammer** | BLE ses bağlantılarını (AirPods, hoparlörler) advertisement taşkını ile bozar |
-| **Notification Spoofer** | Android (Fast Pair), Windows (Swift Pair) ve iOS (AirPods yakınlık) cihazlarına sahte cihaz bulundu bildirimleri gönderir |
+### Tespit (3)
+Flipper Detector, Hacker Detector, RF Silence Enforcer
 
-### İstihbarat
+### Iletisim (5)
+ESP-NOW Chat, ESP-NOW C2, Dead Drop Mesh, IR Data Transfer, Multi-Device Sync
 
-| Araç | Ne Yapar |
-|------|----------|
-| **Device Fingerprinter** | Pasif WiFi parmak izi alma. Probe davranışı, OUI, zamanlama ile cihaz OS/modelini belirler |
-| **OPSEC Monitor** | Taranıp taranmadığınızı, deauth yapılıp yapılmadığını veya izlenip izlenmediğinizi tespit eder. Tehdit seviyesi: yeşil/sarı/kırmızı |
-| **OUI Lookup** | SD karttaki MAC üretici veritabanından çevrimdışı arama |
-
-### Kaçınma
-
-| Araç | Ne Yapar |
-|------|----------|
-| **MAC Rotator** | WiFi MAC adresini yapılandırılabilir zamanlayıcıda rastgele değiştirir. Ayarlanabilir hız |
-| **Channel Hopper** | Operasyonlar sırasında WiFi kanallarını hızla değiştirir. Yapılandırılabilir aralık |
-| **Decoy Traffic** | Dönen kanallarda rastgele beacon/probe çerçeveleri yayar. Gerçek aktiviteyi gürültüde maskeler |
-| **Identity Cloner** | Yakındaki cihaz kimliklerini yakalar (MAC + probe kalıbı). Birini klonlayarak görünmez olun |
-| **QR Poisoner** | Portalınıza yönlenen QR kodları üretir. Ekranda gösterin, yazdırın ve yerleştirin |
-
-### Jam All (Özel GUI)
-
-Bant bazında geçişler, canlı aktivite çubukları, geçen süre zamanlayıcısı ve tek tuşla durdurma ile tam ekran kontrol paneli.
-
-| Bant | Yöntem |
-|------|--------|
-| WiFi 2.4GHz | Tüm 14 kanalda döngüsel deauth taşkını |
-| BLE | Advertisement kanalı taşkını (37, 38, 39) |
-| Sub-GHz | CC1101 sürekli TX (315/433/868/915 MHz) |
-| NRF24 | Dönen kanallarda 2.4GHz taşıyıcı |
-
-### Yardımcı Araçlar
-
-| Araç | Ne Yapar |
-|------|----------|
-| **Attack Scheduler** | Bir araç seç → gecikme ayarla (0'dan 1 saate) → süre ayarla. Otomatik başlar ve durur |
-| **Session Log** | Her eylemi zaman damgasıyla kaydeder. Menüden görüntüle/dışa aktar/temizle |
-| **Script Browser** | Kategorize edilmiş SD klasörlerinde gezin. Dosya türüne göre otomatik başlatır (.txt/.sub/.ir/.html/.nfc/.js) |
-| **Combo Presets** | Tek dokunuşla saldırı zincirleri. Yerleşik: Stealth Mode, Full Attack, Passive Recon. SD'de özel .txt oluşturun |
-| **Remote Dashboard** | Telefon ArsenalNet AP'ye bağlanır → dosya yöneticisi + OTA güncellemeleri ile tam mobil web UI |
+### Yardimci Programlar (2)
+NFC Biz Card, Attack Stats
 
 ---
 
-## Arka Plan Servisleri
+## Board Uyumlulugu
 
-Bunlar tüm menülerde kalıcı olarak çalışır — sadece Arsenal içinde değil.
+### ESP32-S3 (Tam - 72 arac)
+LilyGo T-Embed CC1101, T-Deck Pro, T-Deck, T-Display S3, T-HMI, T-LoRa Pager, T-Watch S3, M5Stack Cardputer, CoreS3, StickS3
 
-| Servis | Açıklama |
-|--------|----------|
-| **OPSEC Dot** | Durum çubuğunda renkli daire (yeşil/sarı/kırmızı). Her zaman görünür, her ekranda |
-| **Always-On Evasion** | MAC rotasyonu + channel hopping + decoy traffic. CPU çekirdeği 0'da sessizce çalışır |
-| **Low Power Mode** | Pil tasarrufu için arka plan görevlerini 5x yavaşlatır. Combos menüsünden açılıp kapatılır |
-| **Auto-Dim** | Aktif saldırılarda ekran parlaklığı düşer. Durduğunda geri yüklenir |
+### ESP32 (LITE - 31 arac)
+M5Stack Core 4MB/16MB, CPlus 1.1, CYD (all variants), Elecrow, Marauder, Awok, WaveSentry, Phantom
 
----
-
-## Remote Dashboard
-
-Arsenal → Dashboard başlatın. Telefonunuzu `ArsenalNet`'e bağlayın (şifre: `arsenal32`). Tarayıcıda `192.168.4.1` açın.
-
-**Özellikler:**
-- Telefondan tüm 26 aracı başlat/durdur
-- SD karttaki dosyalara göz at, yükle, sil (`/arsenal/` klasörü)
-- OTA güncellemesi için `.bin` firmware yükle
-- Kategorize edilmiş klasörlere sürükle-bırak betik yükleme
-- Canlı sistem durumu (heap, SD alanı, çalışma süresi)
+### Bilinen Ksitlamalar
+M5Stack CPlus2, M5Stack Core2 - DRAM tasmasi (cekirdek firmware degiskenleri)
 
 ---
 
-## SD Kart Düzeni
+## Arka Plan Hizmetleri
 
-```
-/arsenal/
-├── badusb/       DuckyScript payload'ları (.txt)
-├── subghz/       Sub-GHz sinyal yakalamaları (.sub)
-├── ir/           IR uzaktan kumanda dosyaları (.ir)
-├── portals/      Evil portal HTML şablonları
-├── nfc/          NFC kart dökümleri (.nfc)
-├── rfid/         125kHz RFID yakalamaları (.rfid)
-├── ibutton/      iButton anahtar dosyaları (.ibutton)
-├── scripts/      JavaScript otomasyonu (.js)
-├── combos/       Özel kombo ön ayarları (.txt — satır başına bir özellik adı)
-├── logs/         Oturum günlükleri (otomatik oluşturulur)
-└── creds.txt     Yakalanan kimlik bilgileri (otomatik oluşturulur)
-```
-
-[BruceFlipperScripts](https://github.com/Unknown3613/BruceFlipperScripts) (60K+ betik) ile uyumlu.
+- **OPSEC Dot** - Durum cubugunda renkli daire
+- **Always-On Evasion** - MAC donusu + kanal atlama + yonlendirme trafik
+- **Auto-Dim** - Saldirlar sirasinda ekran parlakligi duser
 
 ---
 
-## Özel Kombolar
+## Uzaktan Panosu
 
-`/arsenal/combos/` içinde satır başına bir özellik ile `.txt` dosyası oluşturun:
-
-```
-mac_rotator
-channel_hopper
-decoy_traffic
-ble_tracker
-```
-
-Arsenal → Combos'da otomatik olarak görünür.
+Arsenal > Dashboard. Telefonu ArsenalNet'e baglayin (sifre: arsenal32). 192.168.4.1'i acin.
 
 ---
 
-## Donanım
+## Kredi
 
-Birincil hedef: **LilyGo T-Embed CC1101**
-- ESP32-S3 (16MB flash, 8MB PSRAM)
-- ST7789 320x170 TFT ekran
-- Döner enkoder + düğme
-- CC1101 Sub-GHz radyo
-- NRF24 2.4GHz radyo
-- PN532 NFC
-- SD kart yuvası
-- USB-C (BadUSB HID)
-- Hoparlör + Mikrofon
-- RGB LED'ler
-- BQ27220 yakıt ölçer
+- [Bruce Firmware](https://github.com/pr3y/Bruce) by pr3y
+- Arsenal module by quietdom
 
 ---
 
-## Teşekkürler
-
-- pr3y tarafından oluşturulan [Bruce Firmware](https://github.com/pr3y/Bruce) üzerine kurulu
-- Arsenal modülü quietdom tarafından
-- Betik koleksiyonu [BruceFlipperScripts](https://github.com/Unknown3613/BruceFlipperScripts) ile uyumlu
-
----
-
-## Sorumluluk Reddi
-
-Bu yazılım yalnızca yetkili güvenlik testleri ve eğitim amaçlıdır. Sahip olmadığınız veya test etmek için açık iznin olmadığı ağlara veya cihazlara karşı kullanmayın. Yazarlar kötüye kullanımdan sorumlu değildir.
+## Yalnizca yetkilendirilmis guvenlik testleri ve egitim amaclidir.
