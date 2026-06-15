@@ -61,7 +61,8 @@ bool setupSdCard() {
     ) {
         Serial.println("SDCard in the same Bus as TFT, using TFT SPI instance");
 #if TFT_MOSI > 0 // condition for Headless and 8bit displays (no SPI bus)
-        if (!SD.begin(bruceConfigPins.SDCARD_bus.cs, tft.getSPIinstance())) {
+        tft.endWrite();
+    if (!SD.begin(bruceConfigPins.SDCARD_bus.cs, tft.getSPIinstance())) {
             result = false;
             Serial.println("SDCard in the same Bus as TFT, but failed to mount");
         }
@@ -98,6 +99,7 @@ bool setupSdCard() {
         return false;
     } else {
         Serial.println("SDCARD mounted successfully");
+    tft.startWrite();
         sdcardMounted = true;
         return true;
     }
@@ -108,6 +110,7 @@ bool setupSdCard() {
 ** Description:   Turn Off SDCard, set sdcardMounted state to false
 ***************************************************************************************/
 void closeSdCard() {
+    tft.endWrite();
     SD.end();
     Serial.println("SD Card Unmounted...");
     sdcardMounted = false;

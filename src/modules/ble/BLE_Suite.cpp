@@ -1654,6 +1654,7 @@ bool DuckyScriptEngine::parseLine(String line) {
 
 bool DuckyScriptEngine::loadFromSD(String filename) {
     commands.clear();
+    tft.endWrite();
     if (!SD.begin()) return false;
     File file = SD.open(filename);
     if (!file) return false;
