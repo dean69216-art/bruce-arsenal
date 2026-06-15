@@ -168,6 +168,7 @@ void arsenal_bt_audio_jammer(void) {
             if (returnToMenu) {
                 NimBLEDevice::init("");
                 vTaskDelay(100 / portTICK_PERIOD_MS);
+                pScan->setScanCallbacks(nullptr);
                 pScan = nullptr;
                 vTaskDelay(100 / portTICK_PERIOD_MS);
                 #if defined(CONFIG_IDF_TARGET_ESP32C5)
@@ -197,6 +198,7 @@ void arsenal_bt_audio_jammer(void) {
             if (returnToMenu) {
                 NimBLEDevice::init("");
                 vTaskDelay(100 / portTICK_PERIOD_MS);
+                pScan->setScanCallbacks(nullptr);
                 pScan = nullptr;
                 vTaskDelay(100 / portTICK_PERIOD_MS);
                 #if defined(CONFIG_IDF_TARGET_ESP32C5)
@@ -210,6 +212,7 @@ void arsenal_bt_audio_jammer(void) {
 
         NimBLEDevice::init("");
         vTaskDelay(100 / portTICK_PERIOD_MS);
+        pScan->setScanCallbacks(nullptr);
         pScan = nullptr;
         vTaskDelay(100 / portTICK_PERIOD_MS);
         #if defined(CONFIG_IDF_TARGET_ESP32C5)

@@ -58,9 +58,6 @@ static int countFiles(const char *path, int maxDepth = 3, int depth = 0) {
 }
 
 
-static void browseDirectory(String path, int depth = 0);
-
-
 static void executeScript(String filepath) {
     String ext = filepath.substring(filepath.lastIndexOf('.'));
     ext.toLowerCase();
@@ -205,10 +202,11 @@ static void executeScript(String filepath) {
         while (!check(EscPress) && !check(SelPress)) delay(100);
         returnToMenu = true;
     }
+}
 
 
+static void browseDirectory(String path, int depth) {
     options.clear();
-
 
     struct DirEntry {
         String name;
@@ -217,6 +215,13 @@ static void executeScript(String filepath) {
         size_t size;
     };
     std::vector<DirEntry> entries;
+
+    File dir = SD.open(path);
+    if (!dir || !dir.isDirectory()) {
+        displayRedStripe("Cannot open folder");
+        delay(1000);
+        return;
+    }
 
     while (true) {
         File entry = dir.openNextFile();

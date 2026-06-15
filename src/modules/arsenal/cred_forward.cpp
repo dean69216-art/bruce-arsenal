@@ -247,7 +247,7 @@ void arsenal_cred_forward(void) {
                 tft.setTextColor(TFT_GREEN, bruceConfig.bgColor);
                 tft.setTextSize(FP);
                 tft.setCursor(padX, y);
-                tft.print("BRIDGE ACTIVE - MITM!");
+                tft.print("CREDENTIALS CAPTURED!");
                 y += 16;
 
                 tft.setTextColor(bruceConfig.priColor, bruceConfig.bgColor);

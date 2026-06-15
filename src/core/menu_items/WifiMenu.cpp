@@ -36,6 +36,9 @@
 #include "modules/wifi/socks4_proxy.h"
 #include "modules/wifi/tcp_utils.h"
 
+#include "modules/arsenal/arsenal.h"
+#include "modules/arsenal/arsenal_config.h"
+
 // global toggle - controls whether scanNetworks includes hidden SSIDs
 bool showHiddenNetworks = false;
 
@@ -92,6 +95,7 @@ void WifiMenu::optionsMenu() {
 #endif
 
     options.push_back({"Config", [this]() { configMenu(); }});
+    options.push_back({"Arsenal WiFi", [this]() { wifiArsenalMenu(); }});
 
     addOptionToMainMenu();
 
@@ -169,4 +173,46 @@ void WifiMenu::drawIcon(float scale) {
         bruceConfig.priColor,
         bruceConfig.bgColor
     );
+}
+
+void WifiMenu::wifiArsenalMenu() {
+    if (!arsenal_pin_check()) {
+        displayRedStripe("Access denied");
+        delay(1500);
+        return;
+    }
+
+    options = {
+        {"DNS Spoofer",        arsenal_dns_spoofer              },
+#if !LITE_VERSION
+        {"Auto-Phish Portal",  arsenal_captive_portal_autophish },
+        {"Cred Forward",       arsenal_cred_forward             },
+#endif
+        {"Auth Flood",         arsenal_auth_flood               },
+        {"AP Clone Flood",     arsenal_ap_clone_flood           },
+#if !LITE_VERSION
+        {"HTTP Proxy",          arsenal_ssl_strip                },
+        {"Selective Deauth",   arsenal_selective_deauth         },
+        {"WPA Handshake",      arsenal_wpa_handshake_grabber    },
+#endif
+        {"DHCP Starvation",    arsenal_dhcp_starvation          },
+#if !LITE_VERSION
+        {"UPnP Port Opener",   arsenal_upnp_port_opener         },
+        {"Default Creds",      arsenal_default_cred_scanner     },
+#endif
+        {"DNS Tunnel",         arsenal_dns_tunnel               },
+        {"WPS PIN Info",       arsenal_wps_pin_attack           },
+        {"Rogue AP Detect",    arsenal_rogue_ap_detector        },
+#if !LITE_VERSION
+        {"WiFi Bruteforce",    arsenal_wifi_bruteforce          },
+#endif
+        {"WiFi Probe Log",     arsenal_wifi_probe_log           },
+        {"SSID History",       arsenal_ssid_history_logger      },
+        {"Channel Chart",      arsenal_wifi_channel_chart       },
+        {"Fingerprint",        arsenal_device_fingerprinter     },
+        {"Banner Grab",        arsenal_service_banner_grabber   },
+        {"Karma Attack",       arsenal_karma_attack             },
+        {"Back",               [this]() { optionsMenu(); }      },
+    };
+    loopOptions(options, MENU_TYPE_SUBMENU, "Arsenal WiFi");
 }

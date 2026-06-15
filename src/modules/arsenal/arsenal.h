@@ -76,10 +76,6 @@ void arsenal_remote_dashboard(void);
 
 void arsenal_script_browser(void);
 
-#if !LITE_VERSION
-void arsenal_wifi_bruteforce(void);
-#endif
-
 
 void arsenal_attack_scheduler(void);
 

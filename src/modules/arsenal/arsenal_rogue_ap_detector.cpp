@@ -44,11 +44,6 @@ static void roguePromiscCb(void *buf, wifi_promiscuous_pkt_type_t type) {
     if (ssid[0] == '\0') return;
 
     for (int i = 0; i < rogueCount; i++) {
-        if (strcmp(rogueList[i].ssid, ssid) == 0 &&
-            memcmp(rogueList[i].bssid, bssid, 6) != 0) return;
-    }
-
-    for (int i = 0; i < rogueCount; i++) {
         if (strcmp(rogueList[i].ssid, ssid) == 0 && memcmp(rogueList[i].bssid, bssid, 6) == 0) return;
     }
 

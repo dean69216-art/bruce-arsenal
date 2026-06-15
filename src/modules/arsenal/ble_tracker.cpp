@@ -195,6 +195,7 @@ void arsenal_ble_tracker(void) {
         bleScan->stop();
         NimBLEDevice::init("");
         vTaskDelay(100 / portTICK_PERIOD_MS);
+        bleScan->setScanCallbacks(nullptr);
         bleScan = nullptr;
         vTaskDelay(100 / portTICK_PERIOD_MS);
         #if defined(CONFIG_IDF_TARGET_ESP32C5)

@@ -8,7 +8,4 @@ void arsenal_dashboard_start(void);
 void arsenal_dashboard_stop(void);
 bool arsenal_dashboard_is_active(void);
 
-
-void arsenal_ota_handle_upload(void);
-
 #endif

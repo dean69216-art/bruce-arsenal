@@ -8,6 +8,8 @@
 #if !defined(LITE_VERSION)
 #include "modules/ble/BLE_Suite.h"
 #endif
+#include "modules/arsenal/arsenal.h"
+#include "modules/arsenal/arsenal_config.h"
 #include <globals.h>
 
 void BleMenu::optionsMenu() {
@@ -41,6 +43,7 @@ void BleMenu::optionsMenu() {
 #if !defined(LITE_VERSION)
     options.push_back({"BLE Suite", [=]() { BleSuiteMenu(); }});
     options.push_back({"Ninebot", [=]() { BLENinebot(); }});
+    options.push_back({"Arsenal BLE", [=]() { bleArsenalMenu(); }});
 #endif
     addOptionToMainMenu();
 
@@ -136,4 +139,26 @@ void BleMenu::drawIcon(float scale) {
         bruceConfig.priColor,
         bruceConfig.bgColor
     );
+}
+
+void BleMenu::bleArsenalMenu() {
+    if (!arsenal_pin_check()) {
+        displayRedStripe("Access denied");
+        delay(1500);
+        return;
+    }
+
+    options = {
+#if !LITE_VERSION
+        {"Notif Spoofer",      arsenal_sms_notification_spoofer },
+        {"BT Name Spammer",    arsenal_bt_name_spammer          },
+        {"AirTag Spoofer",     arsenal_airtag_spoofer           },
+        {"BLE Tracker",        arsenal_ble_tracker              },
+        {"BT Audio Jammer",    arsenal_bt_audio_jammer          },
+        {"BT Rickroll",        arsenal_bt_audio_rickroll        },
+        {"Device Profiler",    arsenal_bt_device_profiler       },
+#endif
+        {"Back",               [this]() { optionsMenu(); }      },
+    };
+    loopOptions(options, MENU_TYPE_SUBMENU, "Arsenal BLE");
 }

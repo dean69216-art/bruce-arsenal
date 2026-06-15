@@ -10,6 +10,8 @@
 #include "modules/rf/rf_send.h"
 #include "modules/rf/rf_spectrum.h"
 #include "modules/rf/rf_waterfall.h"
+#include "modules/arsenal/arsenal.h"
+#include "modules/arsenal/arsenal_config.h"
 
 void RFMenu::optionsMenu() {
     options = {
@@ -30,6 +32,7 @@ void RFMenu::optionsMenu() {
         {"Jammer",          [=]() { RFJammer(true); } },
 #endif
         {"Config",          [this]() { configMenu(); }},
+        {"Arsenal RF",      [this]() { rfArsenalMenu(); }},
     };
     addOptionToMainMenu();
 
@@ -136,4 +139,25 @@ void RFMenu::drawIcon(float scale) {
         bruceConfig.priColor,
         bruceConfig.bgColor
     );
+}
+
+void RFMenu::rfArsenalMenu() {
+    if (!arsenal_pin_check()) {
+        displayRedStripe("Access denied");
+        delay(1500);
+        return;
+    }
+
+    options = {
+#if !LITE_VERSION
+        {"NRF24 MouseJack",    arsenal_nrf24_mousejack          },
+        {"Doorbell Replay",    arsenal_doorbell_replay          },
+        {"Garage Brute Force", arsenal_garage_brute_force       },
+        {"Keyfob Logger",      arsenal_car_keyfob_logger        },
+#endif
+        {"Frequency Scanner",  arsenal_frequency_scanner        },
+        {"Flipper Import",     arsenal_flipper_import           },
+        {"Back",               [this]() { optionsMenu(); }      },
+    };
+    loopOptions(options, MENU_TYPE_SUBMENU, "Arsenal RF");
 }
